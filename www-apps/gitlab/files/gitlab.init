@@ -1,0 +1,80 @@
+#!/sbin/runscript
+
+name="GitLab"
+description="GitLab on Unicorns"
+
+: ${gitlab_start_service_server:="true"}
+: ${gitlab_start_service_worker:="true"}
+: ${gitlab_user:="@USER@"}
+: ${gitlab_group:="@GROUP@"}
+: ${gitlab_home:="@GITLAB_HOME@"}
+
+: ${server_pidfile:="/run/gitlab/unicorn.pid"}
+: ${rails_env:=production}
+
+: ${worker_pidfile:="/var/tmp/gitlab/pids/sidekiq.pid"}
+: ${worker_log:="/var/log/gitlab/sidekiq.log"}
+
+server_command="/usr/bin/bundle"
+server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
+worker_command="/usr/bin/bundle"
+worker_command_args="exec rake sidekiq:start RAILS_ENV=${rails_env}"
+
+if [ ${rails_env} = development ]; then
+	worker_command_args+=" VVERBOSE=1"
+fi
+
+depend() {
+	provide gitlab
+	need redis sshd
+	use net
+	before apache2
+}
+
+start() {
+	
+	if [ "X${gitlab_start_service_server}" == "Xtrue" ]; then
+		ebegin "Starting GitLab server"
+		checkpath -d -o "${gitlab_user}:${gitlab_group}" -m750 "$(dirname "${server_pidfile}")"
+	
+		start-stop-daemon --start \
+			--chdir "${gitlab_home}" \
+			--user="${gitlab_user}:${gitlab_group}" \
+			--pidfile="${server_pidfile}" \
+			--exec ${server_command} -- ${server_command_args}
+		eend $?
+	fi
+	
+
+
+	if [ "X${gitlab_start_service_worker}" == "Xtrue" ]; then
+		ebegin "Starting GitLab worker"
+		checkpath -d -o "${gitlab_user}:${gitlab_group}" -m750 "$(dirname "${worker_pidfile}")"
+
+		start-stop-daemon --start \
+			--background --quiet \
+			--chdir "${gitlab_home}" \
+			--user="${gitlab_user}:${gitlab_group}" \
+			--stdout "${worker_log}" --stderr "${worker_log}" \
+			--exec ${worker_command} -- ${worker_command_args}
+		eend $?
+	fi
+}
+
+stop() {
+	if [ "X${gitlab_start_service_worker}" == "Xtrue" ]; then
+		ebegin "Stopping GitLab worker"
+		start-stop-daemon --stop \
+			--pidfile=${worker_pidfile} \
+			--exec ${worker_command}
+		eend $?
+	fi
+
+	if [ "X${gitlab_start_service_server}" == "Xtrue" ]; then
+		ebegin "Stopping GitLab server"
+		start-stop-daemon --stop \
+			--pidfile=${server_pidfile} \
+			--exec ${server_command} -- ${server_command_args}
+		eend $?
+	fi
+}

@@ -1,0 +1,16 @@
+--- Gemfile.orig	2013-01-22 12:02:29.272000014 -0700
++++ Gemfile	2013-01-22 12:04:36.188090899 -0700
+@@ -1,5 +1,13 @@
+ source "http://rubygems.org"
+ 
++if RUBY_VERSION =~ /1.9/
++  Encoding.default_external = Encoding::UTF_8
++  Encoding.default_internal = Encoding::UTF_8
++end
++
++# Patched to fix issues with compiling on Gentoo
++gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
++
+ def darwin_only(require_as)
+   RUBY_PLATFORM.include?('darwin') && require_as
+ end

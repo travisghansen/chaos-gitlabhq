@@ -1,0 +1,18 @@
+--- Gemfile.lock.orig	2013-01-22 12:06:39.311170479 -0700
++++ Gemfile.lock	2013-01-22 12:07:38.052208089 -0700
+@@ -124,7 +124,6 @@
+     celluloid (0.12.4)
+       facter (>= 1.6.12)
+       timers (>= 1.0.0)
+-    charlock_holmes (0.6.9)
+     childprocess (0.3.6)
+       ffi (~> 1.0, >= 1.0.6)
+     chosen-rails (0.9.8)
+@@ -479,6 +478,7 @@
+   bootstrap-sass (= 2.2.1.1)
+   capybara
+   carrierwave (~> 0.7.1)
++  charlock_holmes!
+   chosen-rails (= 0.9.8)
+   coffee-rails (~> 3.2.2)
+   colored
