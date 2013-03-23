@@ -1,39 +1,9 @@
---- Gemfile.lock.orig	2013-01-22 12:06:39.311170479 -0700
-+++ Gemfile.lock	2013-01-22 12:31:37.813263241 -0700
-@@ -66,6 +66,13 @@
-       http_parser.rb (~> 0.5.3)
-       multi_json (~> 1.0)
- 
-+GIT
-+  remote: https://github.com/travisghansen/charlock_holmes.git
-+  revision: 22ae0b82942c24d35f641567dbbd318d0f0d1c8f
-+  ref: 22ae0b82942c24d35f641567dbbd318d0f0d1c8f
-+  specs:
-+    charlock_holmes (0.6.9)
-+
- GEM
-   remote: http://rubygems.org/
-   specs:
-@@ -124,7 +131,6 @@
-     celluloid (0.12.4)
-       facter (>= 1.6.12)
-       timers (>= 1.0.0)
--    charlock_holmes (0.6.9)
-     childprocess (0.3.6)
-       ffi (~> 1.0, >= 1.0.6)
-     chosen-rails (0.9.8)
-@@ -479,6 +485,7 @@
-   bootstrap-sass (= 2.2.1.1)
-   capybara
-   carrierwave (~> 0.7.1)
-+  charlock_holmes!
-   chosen-rails (= 0.9.8)
-   coffee-rails (~> 3.2.2)
-   colored
---- Gemfile.orig	2013-01-22 12:02:29.272000014 -0700
-+++ Gemfile	2013-01-22 12:04:36.188090899 -0700
+diff --git a/Gemfile b/Gemfile
+index 7f92cb7..c5d414f 100644
+--- a/Gemfile
++++ b/Gemfile
 @@ -1,5 +1,13 @@
- source "http://rubygems.org"
+ source "https://rubygems.org"
  
 +if RUBY_VERSION =~ /1.9/
 +  Encoding.default_external = Encoding::UTF_8
@@ -46,3 +16,37 @@
  def darwin_only(require_as)
    RUBY_PLATFORM.include?('darwin') && require_as
  end
+diff --git a/Gemfile.lock b/Gemfile.lock
+index 4de5c89..4d207ad 100644
+--- a/Gemfile.lock
++++ b/Gemfile.lock
+@@ -29,6 +29,13 @@ GIT
+   specs:
+     raphael-rails (2.1.0)
+ 
++GIT
++  remote: https://github.com/travisghansen/charlock_holmes.git
++  revision: 22ae0b82942c24d35f641567dbbd318d0f0d1c8f
++  ref: 22ae0b82942c24d35f641567dbbd318d0f0d1c8f
++  specs:
++    charlock_holmes (0.6.9)
++
+ GEM
+   remote: https://rubygems.org/
+   specs:
+@@ -87,7 +94,6 @@ GEM
+     celluloid (0.12.4)
+       facter (>= 1.6.12)
+       timers (>= 1.0.0)
+-    charlock_holmes (0.6.9)
+     childprocess (0.3.8)
+       ffi (~> 1.0, >= 1.0.11)
+     chosen-rails (0.9.8)
+@@ -503,6 +509,7 @@ DEPENDENCIES
+   bootstrap-sass (= 2.2.1.1)
+   capybara (= 2.0.2)
+   carrierwave
++  charlock_holmes!
+   chosen-rails (= 0.9.8)
+   coffee-rails (~> 3.2.2)
+   colored

@@ -50,8 +50,7 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	dev-vcs/git
-	dev-vcs/gitolite[gitlab(-)]
+	dev-vcs/gitlab-shell
 	net-misc/curl
 	virtual/ssh"
 RDEPEND="${DEPEND}
@@ -69,26 +68,21 @@ RUBY_PATCHES=(
 	#"${P}-fix-checks-gentoo.patch"
 
 MY_NAME="gitlab"
-MY_USER="gitlab"
+MY_USER="git"
 HOME_DIR="/var/lib/gitlab"
 DEST_DIR="${HOME_DIR}/${MY_NAME}"
 CONF_DIR="/etc/${MY_NAME}"
 
-pkg_setup() {
-    enewgroup ${MY_USER}
-    enewuser ${MY_USER} -1 /bin/bash ${HOME_DIR} "git,${MY_USER}"
-}
-
 each_ruby_prepare() {
 
 	# fix Gitolite paths
-	local gitolite_repos=/var/lib/gitolite/repositories
-	local gitolite_hooks=/var/lib/gitolite/.gitolite/hooks
+	local gitolite_repos="${HOME_DIR}/repositories"
+	local gitolite_hooks="${HOME_DIR}/gitlab-shell/hooks"
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
 	sed -i \
 		-e "s|\(\s*repos_path:\s\)/home/git.*|\1${gitolite_repos}/|" \
 		-e "s|\(\s*hooks_path:\s\)/home/git.*|\1${gitolite_hooks}/|" \
-		-e "s|/home/gitlab/gitlab-satellites/|${gitlab_satellites}|" \
+		-e "s|/home/git/gitlab-satellites/|${gitlab_satellites}|" \
 		config/gitlab.yml.example || die "failed to filter gitolite.yml.example"
 	
 	# modify database settings
@@ -240,20 +234,6 @@ each_ruby_install() {
 }
 
 pkg_postinst() {
-	if [ ! -e "${HOME_DIR}/.ssh/id_rsa" ]; then
-		einfo "Generating SSH key for gitlab"
-		su -l ${MY_USER} -c "
-			ssh-keygen -q -N '' -t rsa -f ${HOME_DIR}/.ssh/id_rsa" \
-			|| die "failed to generate SSH key"
-	fi
-	if [ ! -e "${HOME_DIR}/.gitconfig" ]; then
-		einfo "Setting git user"
-		su -l ${MY_USER} -c "
-			git config --global user.email 'gitlab@localhost';
-			git config --global user.name 'GitLab'" \
-			|| die "failed to setup git name and email"
-	fi
-
 	# for some strange reason when the user account/home folder gets
 	# created root is the group
 	chown ${MY_USER}:${MY_USER} ${HOME_DIR}
@@ -287,9 +267,6 @@ pkg_postinst() {
 	elog "   Note: Do not forget to start Redis server."
 	elog "   Note: Do not run if performing an upgrade, you database will be deleted."
 	elog
-	elog "5. If this is an update simply run as ${MY_USER}"
-	elog "       bundle exec rake db:migrate RAILS_ENV=production"
-	elog "       re-copy the post-recieve hook into place"
 	elog "   Note: to see all available commands: bundle exec rake -T"
 	elog "   Note: upgrade help - https://github.com/gitlabhq/gitlabhq/wiki"
 	elog
@@ -313,63 +290,6 @@ pkg_config() {
 		die
 	fi
 
-	# read Gitolite base and hooks path from gitlab.yml
-	local repos_path="$(sed -n \
-		-e '/^gitolite:/,/^\w:/s/\s*repos_path:\s*\(.*\)\s*$/\1/p' \
-		"${CONF_DIR}/gitlab.yml")"
-	local hooks_path="$(sed -n \
-		-e '/^gitolite:/,/^\w:/s/\s*hooks_path:\s*\(.*\)\s*$/\1/p' \
-		"${CONF_DIR}/gitlab.yml")"
-	local ssh_user="$(sed -n \
-		-e '/^gitolite:/,/^\w:/s/\s*ssh_user:\s*\(.*\)\s*$/\1/p' \
-		"${CONF_DIR}/gitlab.yml")"
-	
-	if [ -z "${hooks_path}" ] || [ -z "${repos_path}" ] || [ -z "${ssh_user}" ]; then
-		eerror "Could not find repos_path, hooks_path or ssh_user in your gitlab.yml"
-		die
-	fi
-
-	# check if Gitolite's repos_path is in its home
-	local git_home=$(getent passwd ${ssh_user} | cut -d: -f6)
-	if [ ! "$(dirname "${repos_path}")" -ef "${git_home}" ]; then
-		eerror "Gitolite's repos_path from gitlab.yml is not in the HOME of"
-		eerror "${ssh_user} user in passwd"; die
-	fi
-
-	# add git to gitlab group
-	usermod -a -G ${ssh_user} ${MY_USER} \
-		|| "failed to add ${ssh_user} to ${MY_USER} group"
-
-
-	## Initialize Gitolite ##
-
-	# if Gitolite is not initialized yet
-	if [ ! -d "${repos_path}" ]; then
-		# copy GitLab's SSH key
-		cp "${HOME_DIR}/.ssh/id_rsa.pub" "${git_home}/gitlab.pub" \
-			|| die "failed to copy GitLab's SSH key to ${git_home}"
-
-		einfo "Initializing Gitolite"
-		su -l ${ssh_user} -c "
-			gitolite setup -pk ${git_home}/gitlab.pub" \
-			|| die "failed to initialize Gitolite"
-
-		rm "${git_home}/gitlab.pub"
-	fi
-	chmod -R ug+rwXs,o-rwx "${repos_path}" \
-		|| die "failed to change permissions on ${repos_path}"
-	chmod 750 "${git_home}"/.gitolite \
-		|| die "failed to change permissions on ${git_home}/.gitolite"
-
-	# copy git hook
-	einfo "Copying git hook to ${hooks_path}"
-	hooks_path+=/common
-	cp ${DEST_DIR}/lib/hooks/post-receive "${hooks_path}" \
-		|| die "failed to copy hook to ${hooks_path}"
-	chown ${ssh_user}:${ssh_user} "${hooks_path}/post-receive" || die "failed to change perms"
-	chmod 750 "${hooks_path}/post-receive" || die "failed to change perms"
-
-
 	## Initialize app ##
 
 	local RAILS_ENV=${RAILS_ENV:-production}
@@ -390,11 +310,35 @@ pkg_config() {
 		cd ${DEST_DIR}
 		${BUNDLE} exec rake db:migrate RAILS_ENV=${RAILS_ENV}"
 	
+	einfo "shell setup ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} exec rake gitlab:shell:setup RAILS_ENV=${RAILS_ENV}"
+	
+	einfo "building missing projects ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} exec rake gitlab:shell:build_missing_projects RAILS_ENV=${RAILS_ENV}"
+	
+	einfo "Creating satellites ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} exec rake gitlab:satellites:create RAILS_ENV=${RAILS_ENV}"
+	
+	einfo "Upgrading/Migrating wiki to git ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} exec rake gitlab:wiki:migrate RAILS_ENV=${RAILS_ENV}"
+
 	# sometimes does not return/exit
-	#einfo "Precompiling assests ..."
-	#su -l ${MY_USER} -c "
-	#	export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-	#	cd ${DEST_DIR}
-	#	${BUNDLE} exec rake assets:precompile:all RAILS_ENV=${RAILS_ENV}" \
-	#	|| die "failed to precompile assets"
+	einfo "Precompiling assests ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} exec rake assets:precompile:all RAILS_ENV=${RAILS_ENV}" \
+		|| die "failed to precompile assets"
 }
