@@ -25,7 +25,7 @@ SRC_URI="https://github.com/${MY_P}/${MY_P}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
-IUSE="+mysql postgres +unicorn"
+IUSE="+mysql postgres +puma"
 RUBY_S="${MY_P}-${PV}"
 
 ## Gems dependencies:
@@ -101,7 +101,7 @@ each_ruby_prepare() {
 	
 	# remove needless files
 	rm .foreman .gitignore Procfile .travis.yml
-	use unicorn || rm config/unicorn.rb.example
+	use puma || rm config/puma.rb.example
 	use postgres || rm config/database.yml.postgresql
 	use mysql || rm config/database.yml.mysql
 
@@ -117,10 +117,10 @@ each_ruby_prepare() {
 			"${tfile}" || die "failed to filter ${tfile}"
 	done
 
-	# change thin and unicorn dependencies to be optional
+	# change thin and puma dependencies to be optional
 	sed -i \
 		-e '/^gem "thin"/ s/$/, group: :thin/' \
-		-e '/^gem "unicorn"/ s/$/, group: :unicorn/' \
+		-e '/^gem "puma"/ s/$/, group: :puma/' \
 		Gemfile || die "failed to modify Gemfile"
 	
 	# change cache_store
@@ -186,11 +186,13 @@ each_ruby_install() {
 	cd "${D}/${dest}"
 
 	local without="development test thin"
-	local flag; for flag in mysql postgres unicorn; do
+	local flag; for flag in mysql postgres puma; do
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
 
+	# shutup open_wr deny garbage due to nss/https
+	addwrite "/etc/pki"
 	einfo "Running bundle install ${bundle_args} ..."
 	${RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
 
@@ -224,11 +226,11 @@ each_ruby_install() {
 		|| die "failed to filter gitlab_apache.conf"
 	
 	sed -i \
-		-e "s|/home/gitlab/gitlab/|${dest}|" \
-		-e "s|#{app_dir}/tmp/pids/|/run/gitlab/|" \
-		-e "s|#{app_dir}/tmp/sockets/gitlab.socket|127.0.0.1:8080|" \
-		"${D}/${conf}/unicorn.rb.example" \
-		|| die "failed to filter unicorn.rb.example"
+		-e "s|/home/git/gitlab|${dest}|" \
+		-e "s|#{application_path}/tmp/pids/|/run/gitlab/|" \
+		-e "s|unix://#{application_path}/tmp/sockets/gitlab.socket|tcp://127.0.0.1:9292|" \
+		"${D}/${conf}/puma.rb.example" \
+		|| die "failed to filter puma.rb.example"
 
 	newinitd "${T}/${rcscript}" "${MY_NAME}"
 }
@@ -328,11 +330,19 @@ pkg_config() {
 		cd ${DEST_DIR}
 		${BUNDLE} exec rake gitlab:satellites:create RAILS_ENV=${RAILS_ENV}"
 	
+	# 4.2 -> 5.0
 	einfo "Upgrading/Migrating wiki to git ..."
 	su -l ${MY_USER} -c "
 		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
 		cd ${DEST_DIR}
 		${BUNDLE} exec rake gitlab:wiki:migrate RAILS_ENV=${RAILS_ENV}"
+	
+	# 5.0 -> 5.1
+	einfo "Upgrading/Migrating merge requests ..."
+	su -l ${MY_USER} -c "
+		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
+		cd ${DEST_DIR}
+		${BUNDLE} rake migrate_merge_requests RAILS_ENV=${RAILS_ENV}"
 
 	# sometimes does not return/exit
 	einfo "Precompiling assests ..."

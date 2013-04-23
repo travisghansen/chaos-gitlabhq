@@ -16,7 +16,8 @@ description="GitLab on Unicorns"
 : ${worker_log:="/var/log/gitlab/sidekiq.log"}
 
 server_command="/usr/bin/bundle"
-server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
+#server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
+server_command_args="exec puma -C ${gitlab_home}/config/puma.rb -e ${rails_env} RAILS_ENV=${rails_env}"
 worker_command="/usr/bin/bundle"
 worker_command_args="exec rake sidekiq:start RAILS_ENV=${rails_env}"
 
