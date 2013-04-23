@@ -330,19 +330,12 @@ pkg_config() {
 		cd ${DEST_DIR}
 		${BUNDLE} exec rake gitlab:satellites:create RAILS_ENV=${RAILS_ENV}"
 	
-	# 4.2 -> 5.0
-	einfo "Upgrading/Migrating wiki to git ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake gitlab:wiki:migrate RAILS_ENV=${RAILS_ENV}"
-	
 	# 5.0 -> 5.1
 	einfo "Upgrading/Migrating merge requests ..."
 	su -l ${MY_USER} -c "
 		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
 		cd ${DEST_DIR}
-		${BUNDLE} rake migrate_merge_requests RAILS_ENV=${RAILS_ENV}"
+		${BUNDLE} exec rake migrate_merge_requests RAILS_ENV=${RAILS_ENV}"
 
 	# sometimes does not return/exit
 	einfo "Precompiling assests ..."
