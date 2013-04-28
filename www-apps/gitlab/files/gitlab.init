@@ -38,7 +38,7 @@ start() {
 		checkpath -d -o "${gitlab_user}:${gitlab_group}" -m750 "$(dirname "${server_pidfile}")"
 	
 		start-stop-daemon --start \
-			--chdir "${gitlab_home}" \
+			--chdir "${gitlab_home}" --quiet \
 			--user="${gitlab_user}:${gitlab_group}" \
 			--pidfile="${server_pidfile}" \
 			--exec ${server_command} -- ${server_command_args}
