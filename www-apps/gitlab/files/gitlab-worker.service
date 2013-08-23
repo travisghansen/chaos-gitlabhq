@@ -1,0 +1,23 @@
+[Unit]
+Description=GitLab Worker
+Requires=gitlab.service redis.service
+After=gitlab.service redis.service
+Wants=gitlab.service redis.service
+
+[Service]
+User=@USER@
+Group=@GROUP@
+WorkingDirectory=@GITLAB_HOME@
+Environment=RAILS_ENV=production
+SyslogIdentifier=gitlab-worker
+Type=forking
+TimeoutStartSec=600
+#PIDFile=@GITLAB_HOME@/tmp/pids/sidekiq.pid
+ExecStart=/usr/bin/bundle exec rake sidekiq:start
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/usr/bin/bundle exec rake sidekiq:stop
+#ExecStop=/bin/kill -QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+

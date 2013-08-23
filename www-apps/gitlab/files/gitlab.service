@@ -1,0 +1,22 @@
+[Unit]
+Description=GitLab Server
+Requires=redis.service
+After=redis.service
+Wants=postfix.service redis.service
+
+[Service]
+User=@USER@
+Group=@GROUP@
+WorkingDirectory=@GITLAB_HOME@
+Environment=RAILS_ENV=production
+SyslogIdentifier=gitlab
+Type=forking
+TimeoutStartSec=600
+PIDFile=/run/gitlab/unicorn.pid
+ExecStart=/usr/bin/bundle exec "unicorn_rails -c @GITLAB_HOME@/config/unicorn.rb -E production -D"
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStop=/bin/kill -QUIT $MAINPID
+
+[Install]
+WantedBy=multi-user.target
+

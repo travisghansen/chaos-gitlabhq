@@ -17,7 +17,7 @@ USE_RUBY="ruby19"
 PYTHON_DEPEND="2:2.5"
 MY_P="gitlabhq"
 
-inherit eutils python ruby-ng
+inherit eutils python ruby-ng systemd
 
 DESCRIPTION="GitLab is a free project and repository management application"
 HOMEPAGE="https://github.com/gitlabhq/gitlabhq"
@@ -25,7 +25,7 @@ SRC_URI="https://github.com/${MY_P}/${MY_P}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
-IUSE="+mysql postgres +puma"
+IUSE="+mysql postgres +unicorn"
 RUBY_S="${MY_P}-${PV}"
 
 ## Gems dependencies:
@@ -50,12 +50,13 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	dev-vcs/gitlab-shell
+	>=dev-vcs/gitlab-shell-1.7.0
 	net-misc/curl
 	virtual/ssh"
 RDEPEND="${DEPEND}
 	dev-db/redis
-	virtual/mta"
+	virtual/mta
+	dev-python/docutils"
 ruby_add_bdepend "
 	virtual/rubygems
 	>=dev-ruby/bundler-1.0"
@@ -101,7 +102,7 @@ each_ruby_prepare() {
 	
 	# remove needless files
 	rm .foreman .gitignore Procfile .travis.yml
-	use puma || rm config/puma.rb.example
+	use unicorn || rm config/unicorn.rb.example
 	use postgres || rm config/database.yml.postgresql
 	use mysql || rm config/database.yml.mysql
 
@@ -117,10 +118,10 @@ each_ruby_prepare() {
 			"${tfile}" || die "failed to filter ${tfile}"
 	done
 
-	# change thin and puma dependencies to be optional
+	# change thin and unicorn dependencies to be optional
 	sed -i \
 		-e '/^gem "thin"/ s/$/, group: :thin/' \
-		-e '/^gem "puma"/ s/$/, group: :puma/' \
+		-e '/^gem "unicorn"/ s/$/, group: :unicorn/' \
 		Gemfile || die "failed to modify Gemfile"
 	
 	# change cache_store
@@ -186,7 +187,7 @@ each_ruby_install() {
 	cd "${D}/${dest}"
 
 	local without="development test thin"
-	local flag; for flag in mysql postgres puma; do
+	local flag; for flag in mysql postgres unicorn; do
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
@@ -206,19 +207,6 @@ each_ruby_install() {
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
 
-	## RC scripts ##
-
-	local rcscript=gitlab.init
-
-	cp "${FILESDIR}/${rcscript}" "${T}" || die
-	sed -i \
-		-e "s|@USER@|${MY_USER}|" \
-		-e "s|@GROUP@|${MY_USER}|" \
-		-e "s|@GITLAB_HOME@|${dest}|" \
-		-e "s|@LOG_DIR@|${logs}|" \
-		"${T}/${rcscript}" \
-		|| die "failed to filter ${rcscript}"
-	
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
 		-e "s|@LOG_DIR@|${logs}|" \
@@ -226,13 +214,29 @@ each_ruby_install() {
 		|| die "failed to filter gitlab_apache.conf"
 	
 	sed -i \
+		-e "s|/home/git/gitlab/tmp/pids/|/run/gitlab/|" \
+		-e "s|/home/git/gitlab/tmp/sockets/|/run/gitlab/|" \
 		-e "s|/home/git/gitlab|${dest}|" \
-		-e "s|#{application_path}/tmp/pids/|/run/gitlab/|" \
-		-e "s|unix://#{application_path}/tmp/sockets/gitlab.socket|tcp://127.0.0.1:9292|" \
-		"${D}/${conf}/puma.rb.example" \
-		|| die "failed to filter puma.rb.example"
+		"${D}/${conf}/unicorn.rb.example" \
+		|| die "failed to filter unicorn.rb.example"
 
-	newinitd "${T}/${rcscript}" "${MY_NAME}"
+	## RC scripts ##
+	
+	local tfile;
+	for tfile in ${PN}.init ${PN}.service ${PN}-worker.service ${PN}.tmpfile ; do
+		cp "${FILESDIR}/${tfile}" "${T}" || die
+		sed -i \
+			-e "s|@USER@|${MY_USER}|" \
+			-e "s|@GROUP@|${MY_USER}|" \
+			-e "s|@GITLAB_HOME@|${dest}|" \
+			-e "s|@LOG_DIR@|${logs}|" \
+			"${T}/${tfile}" || die "failed to filter ${tfile}"
+	done
+	
+	newinitd "${T}/gitlab.init" "${MY_NAME}"
+	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service 
+	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
+
 }
 
 pkg_postinst() {
@@ -293,55 +297,53 @@ pkg_config() {
 	fi
 
 	## Initialize app ##
+	# running wipes your DB
+	# you *are* asked if you would like to continue
+	einfo "Initializing database ..."
+	gitlab_rake_exec "gitlab:setup"
+	
+	einfo "Upgrading/Migrating database ..."
+	gitlab_rake_exec "db:migrate" || die "failed to migrate db"
+	
+	einfo "shell setup ..."
+	gitlab_rake_exec "gitlab:shell:setup" || die "failed shell setup"
+	
+	einfo "building missing projects ..."
+	gitlab_rake_exec "gitlab:shell:build_missing_projects" || die "failed to build missing projects"
+	
+	einfo "Creating satellites ..."
+	gitlab_rake_exec "gitlab:satellites:create" || die "failed to create satellites"
+	
+	# 5.0 -> 5.1
+	einfo "Upgrading/Migrating merge requests ..."
+	gitlab_rake_exec "migrate_merge_requests"
 
+	# 5.4 -> 6.0
+	einfo "Migrating groups"
+	gitlab_rake_exec "migrate_groups" || die "failed to migrate groups"
+	
+	einfo "Migrating global projects"
+	gitlab_rake_exec "migrate_global_projects" || die "failed to migrate global projects"
+	
+	einfo "Migrating keys"
+	gitlab_rake_exec "migrate_keys" || die "failed to migrate keys"
+	
+	einfo "Migrating inline notes"
+	gitlab_rake_exec "migrate_inline_notes" || die "failed to migrate inline_notes"
+
+	# sometimes does not return/exit
+	einfo "Precompiling assests ..."
+	gitlab_rake_exec "assets:precompile:all" || die "failed to precompile assets"
+}
+
+gitlab_rake_exec() {
+	local COMMAND="${1}"
 	local RAILS_ENV=${RAILS_ENV:-production}
 	local RUBY=${RUBY:-ruby19}
 	local BUNDLE="${RUBY} /usr/bin/bundle"
 
-	# running wipes your DB
-	# you *are* asked if you would like to continue
-	einfo "Initializing database ..."
 	su -l ${MY_USER} -c "
 		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
 		cd ${DEST_DIR}
-		${BUNDLE} exec rake gitlab:setup RAILS_ENV=${RAILS_ENV}"
-	
-	einfo "Upgrading/Migrating database ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake db:migrate RAILS_ENV=${RAILS_ENV}"
-	
-	einfo "shell setup ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake gitlab:shell:setup RAILS_ENV=${RAILS_ENV}"
-	
-	einfo "building missing projects ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake gitlab:shell:build_missing_projects RAILS_ENV=${RAILS_ENV}"
-	
-	einfo "Creating satellites ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake gitlab:satellites:create RAILS_ENV=${RAILS_ENV}"
-	
-	# 5.0 -> 5.1
-	einfo "Upgrading/Migrating merge requests ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake migrate_merge_requests RAILS_ENV=${RAILS_ENV}"
-
-	# sometimes does not return/exit
-	einfo "Precompiling assests ..."
-	su -l ${MY_USER} -c "
-		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
-		cd ${DEST_DIR}
-		${BUNDLE} exec rake assets:precompile:all RAILS_ENV=${RAILS_ENV}" \
-		|| die "failed to precompile assets"
+		${BUNDLE} exec rake ${COMMAND} RAILS_ENV=${RAILS_ENV}"
 }

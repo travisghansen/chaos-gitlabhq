@@ -1,8 +1,8 @@
 diff --git a/Gemfile b/Gemfile
-index 03d3f5c..3179c57 100644
+index d950f43..0c01cfd 100644
 --- a/Gemfile
 +++ b/Gemfile
-@@ -1,5 +1,93 @@
+@@ -1,5 +1,16 @@
  source "https://rubygems.org"
  
 +if RUBY_VERSION =~ /1.9/
@@ -13,91 +13,14 @@ index 03d3f5c..3179c57 100644
 +# Patched to fix issues with compiling on Gentoo
 +gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
 +
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
-+
-+if RUBY_VERSION =~ /1.9/
-+  Encoding.default_external = Encoding::UTF_8
-+  Encoding.default_internal = Encoding::UTF_8
-+end
-+
-+# Patched to fix issues with compiling on Gentoo
-+gem "charlock_holmes", git: "https://github.com/travisghansen/charlock_holmes.git", ref: '22ae0b82942c24d35f641567dbbd318d0f0d1c8f'
++# sidekiq seems to want it
++gem "rb-inotify"
 +
  def darwin_only(require_as)
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index c26eeed..74c1894 100644
+index abec924..6f7cdc1 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -12,6 +12,13 @@ GIT
@@ -116,17 +39,17 @@ index c26eeed..74c1894 100644
    specs:
 @@ -69,7 +76,6 @@ GEM
        activesupport (>= 3.2.0)
-     celluloid (0.14.0)
+     celluloid (0.14.1)
        timers (>= 1.0.0)
 -    charlock_holmes (0.6.9.4)
      childprocess (0.3.9)
        ffi (~> 1.0, >= 1.0.11)
-     chosen-rails (0.9.8)
-@@ -546,6 +552,7 @@ DEPENDENCIES
+     chosen-rails (1.0.0)
+@@ -556,6 +562,7 @@ DEPENDENCIES
    bootstrap-sass
    capybara
    carrierwave
 +  charlock_holmes!
-   chosen-rails (= 0.9.8)
+   chosen-rails (= 1.0.0)
    coffee-rails
    colored
