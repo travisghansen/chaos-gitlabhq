@@ -9,7 +9,7 @@ description="GitLab on Unicorns"
 : ${gitlab_group:="@GROUP@"}
 : ${gitlab_home:="@GITLAB_HOME@"}
 
-: ${server_pidfile:="/run/gitlab/puma.pid"}
+: ${server_pidfile:="/run/gitlab/unicorn.pid"}
 : ${rails_env:=production}
 
 : ${worker_pidfile:="/var/tmp/gitlab/pids/sidekiq.pid"}
@@ -18,7 +18,7 @@ description="GitLab on Unicorns"
 export RAILS_ENV=${rails_env}
 
 server_command="/usr/bin/bundle"
-server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env}"
+server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
 worker_command="/usr/bin/bundle"
 worker_command_args="exec rake sidekiq:start RAILS_ENV=${rails_env}"
 
