@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index d950f43..0c01cfd 100644
+index ccefe0a..ae363cd 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,12 +20,12 @@ index d950f43..0c01cfd 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index abec924..6f7cdc1 100644
+index 9de7a0f..7d39ec4 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
-@@ -12,6 +12,13 @@ GIT
-   specs:
-     raphael-rails (2.1.0)
+@@ -6,6 +6,13 @@ GIT
+       activerecord (>= 2.3.0)
+       rake (>= 0.8.7)
  
 +GIT
 +  remote: https://github.com/travisghansen/charlock_holmes.git
@@ -37,7 +37,7 @@ index abec924..6f7cdc1 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -69,7 +76,6 @@ GEM
+@@ -63,7 +70,6 @@ GEM
        activesupport (>= 3.2.0)
      celluloid (0.14.1)
        timers (>= 1.0.0)
@@ -45,7 +45,7 @@ index abec924..6f7cdc1 100644
      childprocess (0.3.9)
        ffi (~> 1.0, >= 1.0.11)
      chosen-rails (1.0.0)
-@@ -556,6 +562,7 @@ DEPENDENCIES
+@@ -552,6 +558,7 @@ DEPENDENCIES
    bootstrap-sass
    capybara
    carrierwave

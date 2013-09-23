@@ -50,7 +50,7 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	>=dev-vcs/gitlab-shell-1.7.0
+	>=dev-vcs/gitlab-shell-1.7.1
 	net-misc/curl
 	virtual/ssh"
 RDEPEND="${DEPEND}
@@ -269,10 +269,9 @@ pkg_postinst() {
 		elog
 	fi
 	elog "4. Finally execute the following command to initlize environment:"
-	elog "       emerge --config \"=${CATEGORY}/${PF}\""
-	elog "   Note: Do not forget to start Redis server."
-	elog "   Note: Do not run if performing an upgrade, you database will be deleted."
+	elog "   emerge --config \"=${CATEGORY}/${PF}\""
 	elog
+	elog "   Note: Do not forget to start Redis server."
 	elog "   Note: to see all available commands: bundle exec rake -T"
 	elog "   Note: upgrade help - https://github.com/gitlabhq/gitlabhq/wiki"
 	elog
@@ -314,26 +313,21 @@ pkg_config() {
 	einfo "Creating satellites ..."
 	gitlab_rake_exec "gitlab:satellites:create" || die "failed to create satellites"
 	
-	# 5.0 -> 5.1
-	einfo "Upgrading/Migrating merge requests ..."
-	gitlab_rake_exec "migrate_merge_requests"
+	# 6.0 -> 6.1
+	einfo "Migrating iids ..."
+	gitlab_rake_exec "migrate_iids" || die "failed to clean assets"
 
-	# 5.4 -> 6.0
-	einfo "Migrating groups"
-	gitlab_rake_exec "migrate_groups" || die "failed to migrate groups"
-	
-	einfo "Migrating global projects"
-	gitlab_rake_exec "migrate_global_projects" || die "failed to migrate global projects"
-	
-	einfo "Migrating keys"
-	gitlab_rake_exec "migrate_keys" || die "failed to migrate keys"
-	
-	einfo "Migrating inline notes"
-	gitlab_rake_exec "migrate_inline_notes" || die "failed to migrate inline_notes"
+
+	## standard items
+	einfo "Cleaning assests ..."
+	gitlab_rake_exec "assets:clean" || die "failed to clean assets"
 
 	# sometimes does not return/exit
 	einfo "Precompiling assests ..."
-	gitlab_rake_exec "assets:precompile:all" || die "failed to precompile assets"
+	gitlab_rake_exec "assets:precompile" || die "failed to precompile assets"
+	
+	einfo "Clearing cache ..."
+	gitlab_rake_exec "cache:clear" || die "failed to clean assets"
 }
 
 gitlab_rake_exec() {
