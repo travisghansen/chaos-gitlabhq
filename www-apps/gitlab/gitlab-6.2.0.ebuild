@@ -280,6 +280,7 @@ pkg_postinst() {
 	elog
 
 	## rack attack
+	# https://github.com/gitlabhq/gitlabhq/blob/master/doc/update/6.1-to-6.2.md
 	# Copy rack attack middleware config 
 	# bash sudo -u git -H cp config/initializers/rack_attack.rb.example config/initializers/rack_attack.rb
 	# Uncomment config.middleware.use Rack::Attack in /home/git/gitlab/config/application.rb 
