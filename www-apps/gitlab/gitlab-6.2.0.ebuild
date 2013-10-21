@@ -237,6 +237,9 @@ each_ruby_install() {
 	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service 
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
+	# logrotate
+	# lib/support/logrotate/gitlab
+
 }
 
 pkg_postinst() {
@@ -275,6 +278,12 @@ pkg_postinst() {
 	elog "   Note: to see all available commands: bundle exec rake -T"
 	elog "   Note: upgrade help - https://github.com/gitlabhq/gitlabhq/wiki"
 	elog
+
+	## rack attack
+	# Copy rack attack middleware config 
+	# bash sudo -u git -H cp config/initializers/rack_attack.rb.example config/initializers/rack_attack.rb
+	# Uncomment config.middleware.use Rack::Attack in /home/git/gitlab/config/application.rb 
+
 }
 
 pkg_config() {
