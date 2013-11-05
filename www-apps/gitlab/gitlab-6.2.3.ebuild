@@ -50,7 +50,7 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	>=dev-vcs/gitlab-shell-1.7.1
+	>=dev-vcs/gitlab-shell-1.7.4
 	net-misc/curl
 	virtual/ssh"
 RDEPEND="${DEPEND}
