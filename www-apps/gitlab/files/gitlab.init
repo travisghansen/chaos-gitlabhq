@@ -5,9 +5,9 @@ description="GitLab on Unicorns"
 
 : ${gitlab_start_service_server:="true"}
 : ${gitlab_start_service_worker:="true"}
-: ${gitlab_user:="git"}
-: ${gitlab_group:="git"}
-: ${gitlab_home:="/var/lib/gitlab/gitlab"}
+: ${gitlab_user:="@USER@"}
+: ${gitlab_group:="@GROUP@"}
+: ${gitlab_home:="@GITLAB_HOME@"}
 
 : ${server_pidfile:="/run/gitlab/unicorn.pid"}
 : ${rails_env:=production}
