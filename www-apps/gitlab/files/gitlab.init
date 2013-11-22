@@ -5,9 +5,9 @@ description="GitLab on Unicorns"
 
 : ${gitlab_start_service_server:="true"}
 : ${gitlab_start_service_worker:="true"}
-: ${gitlab_user:="@USER@"}
-: ${gitlab_group:="@GROUP@"}
-: ${gitlab_home:="@GITLAB_HOME@"}
+: ${gitlab_user:="git"}
+: ${gitlab_group:="git"}
+: ${gitlab_home:="/var/lib/gitlab/gitlab"}
 
 : ${server_pidfile:="/run/gitlab/unicorn.pid"}
 : ${rails_env:=production}
@@ -19,8 +19,8 @@ export RAILS_ENV=${rails_env}
 
 server_command="/usr/bin/bundle"
 server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
-worker_command="/usr/bin/bundle"
-worker_command_args="exec rake sidekiq:start RAILS_ENV=${rails_env}"
+worker_command="${gitlab_home}/script/background_jobs"
+worker_command_args=" RAILS_ENV=${rails_env}"
 
 if [ ${rails_env} = development ]; then
 	worker_command_args+=" VVERBOSE=1"
@@ -57,8 +57,9 @@ start() {
 			--background --quiet \
 			--chdir "${gitlab_home}" \
 			--user="${gitlab_user}:${gitlab_group}" \
+			--pidfile="${worker_pidfile}" \
 			--stdout "${worker_log}" --stderr "${worker_log}" \
-			--exec ${worker_command} -- ${worker_command_args}
+			--exec ${worker_command} -- start ${worker_command_args}
 		eend $?
 	fi
 }
@@ -68,7 +69,7 @@ stop() {
 		ebegin "Stopping GitLab worker"
 		start-stop-daemon --stop \
 			--pidfile=${worker_pidfile} \
-			--exec ${worker_command}
+			--exec ${worker_command} -- stop ${worker_command_args}
 		eend $?
 	fi
 
