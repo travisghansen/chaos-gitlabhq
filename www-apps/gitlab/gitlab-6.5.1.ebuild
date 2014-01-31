@@ -4,6 +4,9 @@
 
 EAPI="5"
 
+# https://raw2.github.com/gitlabhq/gitlab-recipes/master/web-server/apache/gitlab-ssl.conf
+# rbelem in #gitlab has been very helpful
+
 # Mainteiner notes:
 # - This ebuild uses Bundler to download and install all gems in deployment mode
 #   (i.e. into isolated directory inside application). That's not Gentoo way how
@@ -304,6 +307,9 @@ pkg_config() {
 		eerror "for \"production\" environment."
 		die
 	fi
+
+	einfo "marking scripts as executable"
+	chmod +x "${DEST_DIR}"/script/*
 
 	## Initialize app ##
 	# running wipes your DB

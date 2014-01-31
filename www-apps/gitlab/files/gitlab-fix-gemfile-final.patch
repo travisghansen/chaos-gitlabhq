@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index 2019cae..6287d6d 100644
+index 0d97a74..a3c589c 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,12 +20,12 @@ index 2019cae..6287d6d 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index 8aad7c8..a677269 100644
+index a501aef..cef681a 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
-@@ -7,6 +7,13 @@ GIT
-       actionpack (>= 2.3.0)
-       json
+@@ -5,6 +5,13 @@ GIT
+   specs:
+     github-markup (0.7.6)
  
 +GIT
 +  remote: https://github.com/travisghansen/charlock_holmes.git
@@ -37,19 +37,19 @@ index 8aad7c8..a677269 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -72,7 +79,6 @@ GEM
+@@ -70,7 +77,6 @@ GEM
        json (>= 1.7)
      celluloid (0.15.2)
        timers (~> 1.1.0)
 -    charlock_holmes (0.6.9.4)
-     chosen-rails (1.0.1)
-       coffee-rails (>= 3.2)
-       compass-rails (>= 1.0)
-@@ -572,6 +578,7 @@ DEPENDENCIES
-   bootstrap-sass (~> 2.3)
+     cliver (0.2.2)
+     code_analyzer (0.4.3)
+       sexp_processor
+@@ -561,6 +567,7 @@ DEPENDENCIES
+   bootstrap-sass (~> 3.0)
    capybara
    carrierwave
 +  charlock_holmes!
-   chosen-rails (= 1.0.1)
    coffee-rails
    colored
+   coveralls
