@@ -7,7 +7,7 @@ EAPI="5"
 USE_RUBY="ruby19"
 PYTHON_DEPEND="2:2.5"
 
-inherit eutils python ruby-ng
+inherit eutils python ruby-ng user
 
 DESCRIPTION="GitLab shell"
 HOMEPAGE="https://github.com/gitlabhq/gitlab-shell"
