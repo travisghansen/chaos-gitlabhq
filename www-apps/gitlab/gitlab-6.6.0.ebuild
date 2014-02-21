@@ -53,7 +53,7 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	>=dev-vcs/gitlab-shell-1.7.4
+	>=dev-vcs/gitlab-shell-1.8.0
 	net-misc/curl
 	virtual/ssh"
 RDEPEND="${DEPEND}
@@ -69,7 +69,10 @@ ruby_add_bdepend "
 RUBY_PATCHES=(
 	"${PN}-fix-gemfile-final.patch"
 )
-	#"${P}-fix-checks-gentoo.patch"
+
+# may work to no longer need above patch
+# mkdir .bundle
+# bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
 
 MY_NAME="gitlab"
 MY_USER="git"

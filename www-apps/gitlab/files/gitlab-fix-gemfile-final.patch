@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index 0d97a74..a3c589c 100644
+index ba7f6a7..8e9c9c1 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,7 +20,7 @@ index 0d97a74..a3c589c 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index a501aef..cef681a 100644
+index ba29e0d..413bc78 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -5,6 +5,13 @@ GIT
@@ -37,7 +37,7 @@ index a501aef..cef681a 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -70,7 +77,6 @@ GEM
+@@ -71,7 +78,6 @@ GEM
        json (>= 1.7)
      celluloid (0.15.2)
        timers (~> 1.1.0)
@@ -45,7 +45,7 @@ index a501aef..cef681a 100644
      cliver (0.2.2)
      code_analyzer (0.4.3)
        sexp_processor
-@@ -561,6 +567,7 @@ DEPENDENCIES
+@@ -563,6 +569,7 @@ DEPENDENCIES
    bootstrap-sass (~> 3.0)
    capybara
    carrierwave
