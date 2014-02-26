@@ -112,10 +112,6 @@ each_ruby_prepare() {
 	use postgres || rm config/database.yml.postgresql
 	use mysql || rm config/database.yml.mysql
 
-	# remove zzet's stupid migration which expetcs that users are so foolish 
-	# to use PostgreSQL's superuser in database.yml...
-	rm db/migrate/20121009205010_postgres_create_integer_cast.rb
-
 	# remove dependency on therubyracer and libv8 (we're using nodejs instead)
 	local tfile; for tfile in Gemfile{,.lock}; do
 		sed -i \
