@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index ba7f6a7..8e9c9c1 100644
+index 5b58ce4..ed65a61 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,12 +20,12 @@ index ba7f6a7..8e9c9c1 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index ba29e0d..413bc78 100644
+index 167fd96..7fd1e6b 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
-@@ -5,6 +5,13 @@ GIT
-   specs:
-     github-markup (0.7.6)
+@@ -14,6 +14,13 @@ GIT
+       activesupport
+       multi_json (>= 1.3.2)
  
 +GIT
 +  remote: https://github.com/travisghansen/charlock_holmes.git
@@ -37,7 +37,7 @@ index ba29e0d..413bc78 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -71,7 +78,6 @@ GEM
+@@ -80,7 +87,6 @@ GEM
        json (>= 1.7)
      celluloid (0.15.2)
        timers (~> 1.1.0)
@@ -45,7 +45,7 @@ index ba29e0d..413bc78 100644
      cliver (0.2.2)
      code_analyzer (0.4.3)
        sexp_processor
-@@ -563,6 +569,7 @@ DEPENDENCIES
+@@ -579,6 +585,7 @@ DEPENDENCIES
    bootstrap-sass (~> 3.0)
    capybara
    carrierwave
