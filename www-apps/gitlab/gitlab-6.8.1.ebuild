@@ -252,6 +252,7 @@ pkg_postinst() {
 	elog
 	elog "1. Copy ${CONF_DIR}/gitlab.yml.example to ${CONF_DIR}/gitlab.yml"
 	elog "   and edit this file in order to configure your GitLab settings."
+	elog "   Be sure to change the gitlab-shell dir to /var/lib/gitlab/gitlab-shell/ !"
 	elog
 	elog "2. Copy ${CONF_DIR}/database.yml.* to ${CONF_DIR}/database.yml"
 	elog "   and edit this file in order to configure your database settings"
@@ -264,12 +265,12 @@ pkg_postinst() {
         elog "      su postgres"
         elog "      psql -c \"CREATE ROLE gitlab PASSWORD 'gitlab' \\"
         elog "          NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;\""
-        elog "      createdb -E UTF-8 -O gitlab gitlab_production"
+        elog "      createdb -E UTF-8 -O gitlab gitlabhq_production"
 		elog "  Note: You should change your password to something more random..."
 		elog
  		elog "  GitLab uses polymorphic associations which are not SQL-standard friendly."
 		elog "  To get it work you must use this ugly workaround:"
-		elog "      psql -U postgres -d gitlab"
+		elog "      psql -U postgres -d gitlabhq_production"
 		elog "      CREATE CAST (integer AS text) WITH INOUT AS IMPLICIT;"
 		elog
 	fi
