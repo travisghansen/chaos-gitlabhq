@@ -264,12 +264,12 @@ pkg_postinst() {
         elog "      su postgres"
         elog "      psql -c \"CREATE ROLE gitlab PASSWORD 'gitlab' \\"
         elog "          NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;\""
-        elog "      createdb -E UTF-8 -O gitlab gitlab_production"
+        elog "      createdb -E UTF-8 -O gitlab gitlabhq_production"
 		elog "  Note: You should change your password to something more random..."
 		elog
  		elog "  GitLab uses polymorphic associations which are not SQL-standard friendly."
 		elog "  To get it work you must use this ugly workaround:"
-		elog "      psql -U postgres -d gitlab"
+		elog "      psql -U postgres -d gitlabhq_production"
 		elog "      CREATE CAST (integer AS text) WITH INOUT AS IMPLICIT;"
 		elog
 	fi
