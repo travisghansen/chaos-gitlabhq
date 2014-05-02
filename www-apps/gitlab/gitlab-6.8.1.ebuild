@@ -252,6 +252,7 @@ pkg_postinst() {
 	elog
 	elog "1. Copy ${CONF_DIR}/gitlab.yml.example to ${CONF_DIR}/gitlab.yml"
 	elog "   and edit this file in order to configure your GitLab settings."
+	elog "   Be sure to change the gitlab-shell dir to /var/lib/gitlab/gitlab-shell/ !"
 	elog
 	elog "2. Copy ${CONF_DIR}/database.yml.* to ${CONF_DIR}/database.yml"
 	elog "   and edit this file in order to configure your database settings"
