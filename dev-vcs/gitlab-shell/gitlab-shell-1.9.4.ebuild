@@ -93,6 +93,14 @@ pkg_postinst() {
 }
 
 pkg_config() {
+	REAL_HOME_DIR=$(getent passwd | awk -F: -v v="${MY_USER}" '{if ($1==v) print $6}')
+	if [ "x${REAL_HOME_DIR}" != "x${HOME_DIR}" ];then
+		eerror "home directory for ${MY_USER} must be ${HOME_DIR}"
+		eerror "it is currently ${REAL_HOME_DIR}"
+		eerror "please correct manually and re-run"
+		die "failed ${PN} setup"
+	fi
+
 	einfo "Performing setup ..."
 	su -l ${MY_USER} -c "${DEST_DIR}/bin/install" || die "failed ${PN} setup"
 	einfo "Updating hooks ..."
