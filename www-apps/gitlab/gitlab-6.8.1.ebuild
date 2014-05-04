@@ -86,10 +86,12 @@ each_ruby_prepare() {
 	local gitolite_repos="${HOME_DIR}/repositories"
 	local gitolite_hooks="${HOME_DIR}/gitlab-shell/hooks"
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
+	local gitlab_shell="${HOME_DIR}/gitlab-shell/"
 	sed -i \
 		-e "s|\(\s*repos_path:\s\)/home/git.*|\1${gitolite_repos}/|" \
 		-e "s|\(\s*hooks_path:\s\)/home/git.*|\1${gitolite_hooks}/|" \
 		-e "s|/home/git/gitlab-satellites/|${gitlab_satellites}|" \
+		-e "s|/home/git/gitlab-shell/|${gitlab_shell}|" \
 		config/gitlab.yml.example || die "failed to filter gitolite.yml.example"
 	
 	# modify database settings
@@ -252,7 +254,6 @@ pkg_postinst() {
 	elog
 	elog "1. Copy ${CONF_DIR}/gitlab.yml.example to ${CONF_DIR}/gitlab.yml"
 	elog "   and edit this file in order to configure your GitLab settings."
-	elog "   Be sure to change the gitlab-shell dir to /var/lib/gitlab/gitlab-shell/ !"
 	elog
 	elog "2. Copy ${CONF_DIR}/database.yml.* to ${CONF_DIR}/database.yml"
 	elog "   and edit this file in order to configure your database settings"
