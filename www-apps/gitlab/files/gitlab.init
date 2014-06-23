@@ -16,10 +16,11 @@ description="GitLab on Unicorns"
 : ${worker_log:="/var/log/gitlab/sidekiq.log"}
 
 export RAILS_ENV=${rails_env}
+export PATH="@GITLAB_HOME@/bin:${PATH}"
 
-server_command="/usr/bin/bundle"
-server_command_args="exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
-worker_command="${gitlab_home}/script/background_jobs"
+server_command="${RUBY:-ruby20}"
+server_command_args="/usr/bin/bundle exec unicorn_rails -c ${gitlab_home}/config/unicorn.rb -E ${rails_env} -D"
+worker_command="${gitlab_home}/bin/background_jobs"
 worker_command_args=" RAILS_ENV=${rails_env}"
 
 if [ ${rails_env} = development ]; then

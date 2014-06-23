@@ -16,7 +16,8 @@ EAPI="5"
 #   https://github.com/cvut/gitlabhq for more information.
 #
 
-USE_RUBY="ruby19"
+USE_RUBY="ruby20"
+MY_RUBY="ruby20"
 PYTHON_DEPEND="2:2.5"
 MY_P="gitlabhq"
 
@@ -28,6 +29,7 @@ SRC_URI="https://github.com/${MY_P}/${MY_P}/archive/v${PV}.tar.gz -> ${P}.tar.gz
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
+RESTRICT="mirror"
 IUSE="+mysql postgres +unicorn"
 RUBY_S="${MY_P}-${PV}"
 
@@ -52,10 +54,13 @@ GEMS_DEPEND="
 	mysql? ( virtual/mysql )"
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
-	$(ruby_implementation_depend ruby19 '=' -1.9.3*)[readline,ssl,yaml]
-	>=dev-vcs/gitlab-shell-1.9.4
+	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
+	>=dev-vcs/gitlab-shell-1.9.6
+	dev-libs/libxml2
+	dev-libs/libxslt
 	net-misc/curl
 	virtual/ssh"
+
 RDEPEND="${DEPEND}
 	dev-db/redis
 	virtual/mta
@@ -66,13 +71,10 @@ ruby_add_bdepend "
 
 # gemfile problem here:
 # https://github.com/brianmario/charlock_holmes/issues/10#issuecomment-11899472
-RUBY_PATCHES=(
-	"${PN}-fix-gemfile-final.patch"
-)
+#RUBY_PATCHES=(
+#	"${PN}-fix-gemfile-final.patch"
+#)
 
-# may work to no longer need above patch
-# mkdir .bundle
-# bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
 
 MY_NAME="gitlab"
 MY_USER="git"
@@ -127,7 +129,11 @@ each_ruby_prepare() {
 		-e '/^gem "thin"/ s/$/, group: :thin/' \
 		-e '/^gem "unicorn"/ s/$/, group: :unicorn/' \
 		Gemfile || die "failed to modify Gemfile"
-	
+
+	for tfile in bin/*; do
+		sed -i -e "s|/usr/bin/env ruby|/usr/bin/env ${MY_RUBY}|g" ${tfile}
+	done
+
 	# change cache_store
 	#if use memcached; then
 	#	sed -i \
@@ -157,6 +163,7 @@ each_ruby_install() {
 
 	dosym "${temp}" "${dest}/tmp"
 	dosym "${logs}" "${dest}/log"
+	dosym "/usr/bin/${MY_RUBY}" "${dest}/bin/ruby"
 
 	## Install configs ##
 
@@ -195,6 +202,14 @@ each_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
+
+	# may work to no longer need above patch
+	mkdir .bundle
+	bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
+	
+	# require dev-libs/libxml2 and dev-libs/libxslt
+	bundle config build.nokogiri --use-system-libraries
+	
 
 	# shutup open_wr deny garbage due to nss/https
 	addwrite "/etc/pki"
@@ -243,6 +258,8 @@ each_ruby_install() {
 
 	# logrotate
 	# lib/support/logrotate/gitlab
+
+	dosbin ${FILESDIR}/gitlab_rake.sh
 
 }
 
@@ -310,13 +327,19 @@ pkg_config() {
 	fi
 
 	einfo "marking scripts as executable"
-	chmod +x "${DEST_DIR}"/script/*
+	chmod +x "${DEST_DIR}"/bin/*
 
-	## Initialize app ##
-	# running wipes your DB
-	# you *are* asked if you would like to continue
-	einfo "Initializing database ..."
-	gitlab_rake_exec "gitlab:setup"
+	local answer
+	while [ "${answer}" != "yes" ] && [ "${answer}" != "no" ]; do
+		read -p "Would you like to initialize the database (new install)? (yes/no)  " answer
+	done
+	if [ "${answer}" == "yes" ];then
+		## Initialize app ##
+		# running wipes your DB
+		# you *are* asked if you would like to continue
+		einfo "Initializing database ..."
+		gitlab_rake_exec "gitlab:setup"
+	fi
 	
 	einfo "Upgrading/Migrating database ..."
 	gitlab_rake_exec "db:migrate" || die "failed to migrate db"
@@ -324,36 +347,19 @@ pkg_config() {
 	einfo "shell setup ..."
 	gitlab_rake_exec "gitlab:shell:setup" || die "failed shell setup"
 	
-	einfo "building missing projects ..."
-	gitlab_rake_exec "gitlab:shell:build_missing_projects" || die "failed to build missing projects"
-	
-	einfo "Creating satellites ..."
-	gitlab_rake_exec "gitlab:satellites:create" || die "failed to create satellites"
-	
-	# 6.0 -> 6.1
-	einfo "Migrating iids ..."
-	gitlab_rake_exec "migrate_iids" || die "failed to clean assets"
-
-
 	## standard items
-	einfo "Cleaning assests ..."
-	gitlab_rake_exec "assets:clean" || die "failed to clean assets"
-
-	# sometimes does not return/exit
-	einfo "Precompiling assests ..."
-	gitlab_rake_exec "assets:precompile" || die "failed to precompile assets"
-	
-	einfo "Clearing cache ..."
-	gitlab_rake_exec "cache:clear" || die "failed to clean assets"
+	einfo "Preparing assets/cache ..."
+	gitlab_rake_exec "assets:clean assets:precompile cache:clear" || die "failed to prepare assets/cache"
 }
 
 gitlab_rake_exec() {
 	local COMMAND="${1}"
 	local RAILS_ENV=${RAILS_ENV:-production}
-	local RUBY=${RUBY:-ruby19}
+	local RUBY=${RUBY:-${MY_RUBY}}
 	local BUNDLE="${RUBY} /usr/bin/bundle"
 
 	su -l ${MY_USER} -c "
+		export PATH="/var/lib/gitlab/gitlab/bin:${PATH}"
 		export LANG=en_US.UTF-8; export LC_ALL=en_US.UTF-8
 		cd ${DEST_DIR}
 		${BUNDLE} exec rake ${COMMAND} RAILS_ENV=${RAILS_ENV}"
