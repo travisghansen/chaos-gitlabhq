@@ -4,7 +4,8 @@
 
 EAPI="5"
 
-USE_RUBY="ruby19"
+USE_RUBY="ruby20"
+MY_RUBY="ruby20"
 PYTHON_DEPEND="2:2.5"
 
 inherit eutils python ruby-ng user
@@ -44,6 +45,10 @@ each_ruby_prepare() {
 	
 	# remove needless files
 	rm .gitignore
+	
+	for tfile in bin/*; do
+		sed -i -e "s|/usr/bin/env ruby|/usr/bin/env ${MY_RUBY}|g" ${tfile}
+	done
 	
 	#cd support
 	#local tfile; for tfile in rewrite-hooks.sh truncate_repositories.sh; do
