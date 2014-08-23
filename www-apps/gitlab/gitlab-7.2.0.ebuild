@@ -55,6 +55,7 @@ GEMS_DEPEND="
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
+	dev-util/cmake
 	>=dev-vcs/gitlab-shell-1.9.7
 	dev-libs/libxml2
 	dev-libs/libxslt
