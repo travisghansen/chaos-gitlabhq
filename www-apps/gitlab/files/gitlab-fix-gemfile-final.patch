@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index e28ffcf..3b6b860 100644
+index cfc205f..1943e37 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,7 +20,7 @@ index e28ffcf..3b6b860 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index 205599e..a216d7c 100644
+index e9be030..facef36 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@
@@ -42,7 +42,7 @@ index 205599e..a216d7c 100644
      cliver (0.3.2)
      code_analyzer (0.4.3)
        sexp_processor
-@@ -589,6 +595,7 @@ DEPENDENCIES
+@@ -593,6 +599,7 @@ DEPENDENCIES
    bootstrap-sass (~> 3.0)
    capybara (~> 2.2.1)
    carrierwave
