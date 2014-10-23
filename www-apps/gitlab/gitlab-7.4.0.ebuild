@@ -56,7 +56,7 @@ GEMS_DEPEND="
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
 	dev-util/cmake
-	>=dev-vcs/gitlab-shell-2.0.0
+	>=dev-vcs/gitlab-shell-2.1.0
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -112,7 +112,7 @@ each_ruby_prepare() {
 		|| die "failed to filter secret_token.rb"
 	
 	# remove needless files
-	rm .foreman .gitignore Procfile .travis.yml
+	rm .foreman .gitignore Procfile
 	use unicorn || rm config/unicorn.rb.example
 	use postgres || rm config/database.yml.postgresql
 	use mysql || rm config/database.yml.mysql
