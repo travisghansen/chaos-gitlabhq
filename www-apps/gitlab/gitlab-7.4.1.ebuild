@@ -226,6 +226,8 @@ each_ruby_install() {
 
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
+	
+	# chmod +x "${D}/${dest}"/bin/*
 
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
