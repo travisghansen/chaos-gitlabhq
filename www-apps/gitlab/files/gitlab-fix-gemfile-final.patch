@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index ab7a1d6..e063ee5 100644
+index bb8aef6..1f2ce49 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -20,7 +20,7 @@ index ab7a1d6..e063ee5 100644
    RUBY_PLATFORM.include?('darwin') && require_as
  end
 diff --git a/Gemfile.lock b/Gemfile.lock
-index f4ecbe6..8e361b8 100644
+index a3645f7..a9c33bf 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@

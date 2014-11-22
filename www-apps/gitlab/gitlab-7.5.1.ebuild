@@ -56,7 +56,7 @@ GEMS_DEPEND="
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
 	dev-util/cmake
-	>=dev-vcs/gitlab-shell-2.0.1
+	=dev-vcs/gitlab-shell-2.2*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -86,16 +86,16 @@ CONF_DIR="/etc/${MY_NAME}"
 each_ruby_prepare() {
 
 	# fix Gitolite paths
-	local gitolite_repos="${HOME_DIR}/repositories"
-	local gitolite_hooks="${HOME_DIR}/gitlab-shell/hooks"
+	local gitlab_repos="${HOME_DIR}/repositories"
+	local gitlab_hooks="${HOME_DIR}/gitlab-shell/hooks"
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
 	local gitlab_shell="${HOME_DIR}/gitlab-shell/"
 	sed -i \
-		-e "s|\(\s*repos_path:\s\)/home/git.*|\1${gitolite_repos}/|" \
-		-e "s|\(\s*hooks_path:\s\)/home/git.*|\1${gitolite_hooks}/|" \
+		-e "s|\(\s*repos_path:\s\)/home/git.*|\1${gitlab_repos}/|" \
+		-e "s|\(\s*hooks_path:\s\)/home/git.*|\1${gitlab_hooks}/|" \
 		-e "s|/home/git/gitlab-satellites/|${gitlab_satellites}|" \
 		-e "s|/home/git/gitlab-shell/|${gitlab_shell}|" \
-		config/gitlab.yml.example || die "failed to filter gitolite.yml.example"
+		config/gitlab.yml.example || die "failed to filter gitlab.yml.example"
 	
 	# modify database settings
 	sed -i \
