@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index bb8aef6..1f2ce49 100644
+index ce9b833..646f2ba 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -19,8 +19,17 @@ index bb8aef6..1f2ce49 100644
  def darwin_only(require_as)
    RUBY_PLATFORM.include?('darwin') && require_as
  end
+@@ -28,7 +39,7 @@ gem 'omniauth-google-oauth2'
+ gem 'omniauth-twitter'
+ gem 'omniauth-github'
+ gem 'omniauth-shibboleth'
+-gem 'omniauth-kerberos'
++
+ 
+ # Extracting information from a git repository
+ # Provide access to Gitlab::Git library
 diff --git a/Gemfile.lock b/Gemfile.lock
-index a3645f7..a9c33bf 100644
+index a93935f..dd1912d 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@
@@ -42,7 +51,27 @@ index a3645f7..a9c33bf 100644
      cliver (0.3.2)
      code_analyzer (0.4.3)
        sexp_processor
-@@ -601,6 +607,7 @@ DEPENDENCIES
+@@ -322,11 +328,6 @@ GEM
+     omniauth-google-oauth2 (0.2.5)
+       omniauth (> 1.0)
+       omniauth-oauth2 (~> 1.1)
+-    omniauth-kerberos (0.2.0)
+-      omniauth-multipassword
+-      timfel-krb5-auth (~> 0.8)
+-    omniauth-multipassword (0.4.1)
+-      omniauth (~> 1.0)
+     omniauth-oauth (1.0.1)
+       oauth
+       omniauth (~> 1.0)
+@@ -536,7 +537,6 @@ GEM
+     thread_safe (0.3.4)
+     tilt (1.4.1)
+     timers (1.1.0)
+-    timfel-krb5-auth (0.8)
+     tinder (1.9.3)
+       eventmachine (~> 1.0)
+       faraday (~> 0.8)
+@@ -606,6 +606,7 @@ DEPENDENCIES
    bootstrap-sass (~> 3.0)
    capybara (~> 2.2.1)
    carrierwave
@@ -50,3 +79,11 @@ index a3645f7..a9c33bf 100644
    coffee-rails
    colored
    coveralls
+@@ -661,7 +662,6 @@ DEPENDENCIES
+   omniauth (~> 1.1.3)
+   omniauth-github
+   omniauth-google-oauth2
+-  omniauth-kerberos
+   omniauth-shibboleth
+   omniauth-twitter
+   org-ruby (= 0.9.9)

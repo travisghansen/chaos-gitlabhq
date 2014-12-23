@@ -56,7 +56,7 @@ GEMS_DEPEND="
 DEPEND="${GEMS_DEPEND}
 	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
 	dev-util/cmake
-	=dev-vcs/gitlab-shell-2.2*
+	=dev-vcs/gitlab-shell-2.4*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -72,9 +72,9 @@ ruby_add_bdepend "
 
 # gemfile problem here:
 # https://github.com/brianmario/charlock_holmes/issues/10#issuecomment-11899472
-#RUBY_PATCHES=(
-#	"${PN}-fix-gemfile-final.patch"
-#)
+RUBY_PATCHES=(
+	"${PN}-fix-gemfile-final.patch"
+)
 
 
 MY_NAME="gitlab"
