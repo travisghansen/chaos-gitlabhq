@@ -40,7 +40,7 @@ RUBY_S="${MY_P}-${PV}"
 #   yajl-ruby			dev-libs/yajl
 #   pygments.rb			python 2.5+
 #   execjs				net-libs/nodejs, or any other JS runtime
-#   pg					dev-db/postgresql-base
+#   pg					dev-db/postgresql
 #   mysql				virtual/mysql
 #
 GEMS_DEPEND="
@@ -50,7 +50,7 @@ GEMS_DEPEND="
 	dev-util/ragel
 	dev-libs/yajl
 	net-libs/nodejs
-	postgres? ( dev-db/postgresql-base )
+	postgres? ( dev-db/postgresql )
 	mysql? ( virtual/mysql )"
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
