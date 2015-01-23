@@ -1,0 +1,60 @@
+#!/sbin/runscript
+
+name="GitLab Runner"
+description="GitLab Runner, starts runners in the background"
+
+: ${gitlab_runner_user:=@USER@}
+: ${gitlab_runner_base:="@GITLAB_RUNNER_BASE@"}
+: ${gitlab_runner_pidfile_base:="@RUN_DIR@/gitlab-runner.pid"}
+: ${gitlab_runner_logfile:="@LOGS_DIR@/gitlab-runner.log"}
+: ${gitlab_runner_num:=1} # number of runners to spawn
+: ${gitlab_runner_workdir:="@GITLAB_RUNNER_BASE@/work"} # number of runners to spawn
+
+bundle_command="/usr/bin/bundle"
+bundle_command_args="exec ./bin/runner -C ${gitlab_runner_workdir}"
+
+depend() {
+	provide gitlab-runner
+	use gitlab-ci
+}
+
+start() {
+	ebegin "Starting ${name}"
+
+	for (( i=1; i<=${gitlab_runner_num}; i++ )) ; do
+		einfo "Starting runner ${i} of ${gitlab_runner_num} ..."
+		local pidfile="${gitlab_runner_pidfile_base}${i}"
+		checkpath -d -o ${gitlab_runner_user} -m755 "$(dirname "${pidfile}")"
+		start-stop-daemon --start \
+			--chdir "${gitlab_runner_base}" \
+			--user=${gitlab_runner_user} \
+			--make-pidfile \
+			--pidfile="${pidfile}" \
+			--background \
+			--exec /bin/bash -- -c "exec ${bundle_command} ${bundle_command_args} >> ${gitlab_runner_logfile} 2>&1"
+		local success=$?
+		if [ ${success}!=0 ] ; then
+			eend ${success}
+		fi
+	done
+
+	eend 0
+}
+
+stop() {
+	ebegin "Stopping ${name}"
+
+	for (( i=1; i<=${gitlab_runner_num}; i++ )) ; do
+		einfo "Stopping runner ${i} of ${gitlab_runner_num} ..."
+		local pidfile="${gitlab_runner_pidfile_base}${i}"
+		start-stop-daemon --stop \
+			--pidfile="${pidfile}"
+# DO WE NEED --exec? or --startas???
+		local success=$?
+		if [ ${success}!=0 ] ; then
+			eend ${success}
+		fi
+	done
+
+	eend 0
+}
