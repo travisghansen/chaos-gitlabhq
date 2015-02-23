@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index b403e85..5f49801 100644
+index c3d8299..79d086f 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -25,11 +25,11 @@ index b403e85..5f49801 100644
  gem 'omniauth-shibboleth'
 -gem 'omniauth-kerberos'
 +
+ gem 'omniauth-gitlab'
  gem 'doorkeeper', '2.1.0'
  gem "rack-oauth2", "~> 1.0.5"
- 
 diff --git a/Gemfile.lock b/Gemfile.lock
-index c6aa35a..42ecfaf 100644
+index 3283da4..4a8ac57 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@
@@ -43,15 +43,15 @@ index c6aa35a..42ecfaf 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -64,7 +71,6 @@ GEM
+@@ -74,7 +81,6 @@ GEM
        json (>= 1.7)
-     celluloid (0.15.2)
-       timers (~> 1.1.0)
+     celluloid (0.16.0)
+       timers (~> 4.0.0)
 -    charlock_holmes (0.6.9.4)
      cliver (0.3.2)
-     code_analyzer (0.4.3)
-       sexp_processor
-@@ -329,11 +335,6 @@ GEM
+     coderay (1.1.0)
+     coercible (1.0.0)
+@@ -344,11 +350,6 @@ GEM
      omniauth-google-oauth2 (0.2.5)
        omniauth (> 1.0)
        omniauth-oauth2 (~> 1.1)
@@ -63,25 +63,25 @@ index c6aa35a..42ecfaf 100644
      omniauth-oauth (1.0.1)
        oauth
        omniauth (~> 1.0)
-@@ -552,7 +553,6 @@ GEM
-     thread_safe (0.3.4)
+@@ -576,7 +577,6 @@ GEM
      tilt (1.4.1)
-     timers (1.1.0)
--    timfel-krb5-auth (0.8)
+     timers (4.0.1)
+       hitimes
+-    timfel-krb5-auth (0.8.3)
      tinder (1.9.3)
        eventmachine (~> 1.0)
        faraday (~> 0.8)
-@@ -623,6 +623,7 @@ DEPENDENCIES
-   browser
+@@ -649,6 +649,7 @@ DEPENDENCIES
+   cal-heatmap-rails (~> 0.0.1)
    capybara (~> 2.2.1)
    carrierwave
 +  charlock_holmes!
    coffee-rails
    colored
    coveralls
-@@ -680,7 +681,6 @@ DEPENDENCIES
-   omniauth (~> 1.1.3)
+@@ -707,7 +708,6 @@ DEPENDENCIES
    omniauth-github
+   omniauth-gitlab
    omniauth-google-oauth2
 -  omniauth-kerberos
    omniauth-shibboleth

@@ -21,7 +21,7 @@ if [[ ${PV} != *9999* ]] ; then
 	:
 	#EGIT_COMMIT="tags/$(echo ${PV//_/-} | tr '[:lower:]' '[:upper:]' )"
 	#EGIT_COMMIT="4d3a9d1319cfbfd12c4a2070adc0ae276835f767"
-	EGIT_COMMIT="5b70bceeb160d0f8fb50776d020708efbbbb46ad"
+	EGIT_COMMIT="3ba62db6a6d5f2f457e02f2b408a251fb74d3dad"
 fi
 
 DESCRIPTION="GitLab Runner is the build processor needed for GitLab CI"
