@@ -83,7 +83,7 @@ HOME_DIR="/var/lib/gitlab"
 DEST_DIR="${HOME_DIR}/${MY_NAME}"
 CONF_DIR="/etc/${MY_NAME}"
 
-each_ruby_prepare() {
+all_ruby_prepare() {
 
 	# fix Gitolite paths
 	local gitlab_repos="${HOME_DIR}/repositories"
@@ -144,7 +144,7 @@ each_ruby_prepare() {
 	#fi
 }
 
-each_ruby_install() {
+all_ruby_install() {
 	local dest=${DEST_DIR}
 	local conf=/etc/${MY_NAME}
 	local temp=/var/tmp/${MY_NAME}
