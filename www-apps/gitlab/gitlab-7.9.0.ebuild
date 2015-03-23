@@ -16,8 +16,8 @@ EAPI="5"
 #   https://github.com/cvut/gitlabhq for more information.
 #
 
-USE_RUBY="ruby20"
-MY_RUBY="ruby20"
+USE_RUBY="ruby21"
+MY_RUBY="ruby21"
 PYTHON_DEPEND="2:2.5"
 MY_P="gitlabhq"
 
@@ -54,12 +54,13 @@ GEMS_DEPEND="
 	mysql? ( virtual/mysql )"
 	#memcached? ( net-misc/memcached )
 DEPEND="${GEMS_DEPEND}
-	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
+	$(ruby_implementation_depend ${MY_RUBY} '=' -2.1.5*)[readline,ssl]
 	dev-util/cmake
-	=dev-vcs/gitlab-shell-2.5*
+	=dev-vcs/gitlab-shell-2.6*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
+	net-libs/nodejs
 	virtual/ssh"
 
 RDEPEND="${DEPEND}

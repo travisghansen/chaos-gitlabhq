@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index c3d8299..79d086f 100644
+index f697f09..a842893 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -26,10 +26,19 @@ index c3d8299..79d086f 100644
 -gem 'omniauth-kerberos'
 +
  gem 'omniauth-gitlab'
+ gem 'omniauth-bitbucket'
  gem 'doorkeeper', '2.1.0'
- gem "rack-oauth2", "~> 1.0.5"
+@@ -178,7 +189,7 @@ gem 'ace-rails-ap'
+ gem 'mousetrap-rails'
+ 
+ # Detect and convert string character encoding
+-gem 'charlock_holmes'
++
+ 
+ gem "sass-rails", '~> 4.0.2'
+ gem "coffee-rails"
 diff --git a/Gemfile.lock b/Gemfile.lock
-index 3283da4..4a8ac57 100644
+index 3fd051e..309eb64 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@
@@ -43,7 +52,7 @@ index 3283da4..4a8ac57 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -74,7 +81,6 @@ GEM
+@@ -91,7 +98,6 @@ GEM
        json (>= 1.7)
      celluloid (0.16.0)
        timers (~> 4.0.0)
@@ -51,7 +60,7 @@ index 3283da4..4a8ac57 100644
      cliver (0.3.2)
      coderay (1.1.0)
      coercible (1.0.0)
-@@ -344,11 +350,6 @@ GEM
+@@ -368,11 +374,6 @@ GEM
      omniauth-google-oauth2 (0.2.5)
        omniauth (> 1.0)
        omniauth-oauth2 (~> 1.1)
@@ -63,7 +72,7 @@ index 3283da4..4a8ac57 100644
      omniauth-oauth (1.0.1)
        oauth
        omniauth (~> 1.0)
-@@ -576,7 +577,6 @@ GEM
+@@ -600,7 +601,6 @@ GEM
      tilt (1.4.1)
      timers (4.0.1)
        hitimes
@@ -71,15 +80,16 @@ index 3283da4..4a8ac57 100644
      tinder (1.9.3)
        eventmachine (~> 1.0)
        faraday (~> 0.8)
-@@ -649,6 +649,7 @@ DEPENDENCIES
+@@ -672,7 +672,7 @@ DEPENDENCIES
    cal-heatmap-rails (~> 0.0.1)
    capybara (~> 2.2.1)
    carrierwave
+-  charlock_holmes
 +  charlock_holmes!
    coffee-rails
    colored
    coveralls
-@@ -707,7 +708,6 @@ DEPENDENCIES
+@@ -732,7 +732,6 @@ DEPENDENCIES
    omniauth-github
    omniauth-gitlab
    omniauth-google-oauth2
