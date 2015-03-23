@@ -4,8 +4,8 @@
 
 EAPI="5"
 
-USE_RUBY="ruby20"
-MY_RUBY="ruby20"
+USE_RUBY="ruby21"
+MY_RUBY="ruby21"
 PYTHON_DEPEND="2:2.5"
 
 inherit eutils python ruby-ng user
@@ -20,7 +20,7 @@ IUSE=""
 
 GEMS_DEPEND=""
 DEPEND="${GEMS_DEPEND}
-	$(ruby_implementation_depend ${MY_RUBY} '=' -2.0.0*)[readline,ssl]
+	$(ruby_implementation_depend ${MY_RUBY} '=' -2.1.5*)[readline,ssl]
 	virtual/ssh"
 RDEPEND="${DEPEND}"
 
