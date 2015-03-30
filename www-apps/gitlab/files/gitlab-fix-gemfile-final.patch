@@ -38,7 +38,7 @@ index f697f09..a842893 100644
  gem "sass-rails", '~> 4.0.2'
  gem "coffee-rails"
 diff --git a/Gemfile.lock b/Gemfile.lock
-index 3fd051e..309eb64 100644
+index c38daf6..0db42b3 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@

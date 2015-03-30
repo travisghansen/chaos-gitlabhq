@@ -4,27 +4,25 @@
 
 EAPI="5"
 
-# https://raw2.github.com/gitlabhq/gitlab-recipes/master/web-server/apache/gitlab-ssl.conf
-# rbelem in #gitlab has been very helpful
 
 # Mainteiner notes:
 # - This ebuild uses Bundler to download and install all gems in deployment mode
 #   (i.e. into isolated directory inside application). That's not Gentoo way how
 #   it should be done, but GitLab has too many dependencies that it will be too
 #   difficult to maintain them via ebuilds.
-# - USE flags analytics and public-projects applies our custom patches, see
-#   https://github.com/cvut/gitlabhq for more information.
+#
+# - rbelem in #gitlab has been very helpful
 #
 
-USE_RUBY="ruby21"
-MY_RUBY="ruby21"
+USE_RUBY="ruby20 ruby21"
+#MY_RUBY="ruby21"
 PYTHON_DEPEND="2:2.5"
 MY_P="gitlabhq"
 
 inherit eutils python ruby-ng systemd
 
 DESCRIPTION="GitLab is a free project and repository management application"
-HOMEPAGE="https://github.com/gitlabhq/gitlabhq"
+HOMEPAGE="https://about.gitlab.com"
 SRC_URI="https://github.com/${MY_P}/${MY_P}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
 SLOT="0"
 LICENSE="MIT"
@@ -52,9 +50,12 @@ GEMS_DEPEND="
 	net-libs/nodejs
 	postgres? ( dev-db/postgresql )
 	mysql? ( virtual/mysql )"
-	#memcached? ( net-misc/memcached )
+
 DEPEND="${GEMS_DEPEND}
-	$(ruby_implementation_depend ${MY_RUBY} '=' -2.1.5*)[readline,ssl]
+	|| (
+		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
+		$(ruby_implementation_depend ruby21 '=' -2.1.5*)[readline,ssl]
+	)
 	dev-util/cmake
 	=dev-vcs/gitlab-shell-2.6*
 	dev-libs/libxml2
@@ -85,12 +86,13 @@ DEST_DIR="${HOME_DIR}/${MY_NAME}"
 CONF_DIR="/etc/${MY_NAME}"
 
 all_ruby_prepare() {
-
 	# fix Gitolite paths
 	local gitlab_repos="${HOME_DIR}/repositories"
 	local gitlab_hooks="${HOME_DIR}/gitlab-shell/hooks"
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
 	local gitlab_shell="${HOME_DIR}/gitlab-shell/"
+	local tfile;
+
 	sed -i \
 		-e "s|\(\s*repos_path:\s\)/home/git.*|\1${gitlab_repos}/|" \
 		-e "s|\(\s*hooks_path:\s\)/home/git.*|\1${gitlab_hooks}/|" \
@@ -106,43 +108,24 @@ all_ruby_prepare() {
 		config/database.yml.postgresql \
 		|| die "failed to filter database.yml.postgresql"
 	
-	# replace "secret" token with random one
-	local randpw=$(echo ${RANDOM}|sha512sum|cut -c 1-128)
-	sed -i -e "/secret_token =/ s/=.*/= '${randpw}'/" \
-		config/initializers/secret_token.rb \
-		|| die "failed to filter secret_token.rb"
+	sed -i \
+		-e "s|/home/git/gitlab/log|/var/log/gitlab|" \
+		-e "s|/home/git/gitlab-shell|/var/lib/gitlab/gitlab-shell|" \
+		lib/support/logrotate/gitlab \
+		|| die "failed to filter gitlab.logrotate"
+	
+	sed -i \
+		-e "s|/home/git/gitlab/tmp/pids/|/run/gitlab/|" \
+		-e "s|/home/git/gitlab/tmp/sockets/|/run/gitlab/|" \
+		-e "s|/home/git/gitlab|${dest}|" \
+		config/unicorn.rb.example \
+		|| die "failed to filter unicorn.rb.example"
 	
 	# remove needless files
 	rm .foreman .gitignore Procfile
 	use unicorn || rm config/unicorn.rb.example
 	use postgres || rm config/database.yml.postgresql
 	use mysql || rm config/database.yml.mysql
-
-	# remove dependency on therubyracer and libv8 (we're using nodejs instead)
-	local tfile; for tfile in Gemfile{,.lock}; do
-		sed -i \
-			-e '/therubyracer/d' \
-			-e '/libv8/d' \
-			"${tfile}" || die "failed to filter ${tfile}"
-	done
-
-	# change thin and unicorn dependencies to be optional
-	sed -i \
-		-e '/^gem "thin"/ s/$/, group: :thin/' \
-		-e '/^gem "unicorn"/ s/$/, group: :unicorn/' \
-		Gemfile || die "failed to modify Gemfile"
-
-	for tfile in bin/*; do
-		sed -i -e "s|/usr/bin/env ruby|/usr/bin/env ${MY_RUBY}|g" ${tfile}
-	done
-
-	# change cache_store
-	#if use memcached; then
-	#	sed -i \
-	#		-e "/\w*config.cache_store / s/=.*/= :dalli_store, { namespace: 'gitlab' }/" \
-	#		config/environments/production.rb \
-	#		|| die "failed to modify production.rb"
-	#fi
 }
 
 all_ruby_install() {
@@ -151,9 +134,8 @@ all_ruby_install() {
 	local temp=/var/tmp/${MY_NAME}
 	local logs=/var/log/${MY_NAME}
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
-
+	
 	## Prepare directories ##
-
 	diropts -m750
 	keepdir "${logs}"
 	keepdir "${gitlab_satellites}"
@@ -165,10 +147,8 @@ all_ruby_install() {
 
 	dosym "${temp}" "${dest}/tmp"
 	dosym "${logs}" "${dest}/log"
-	dosym "/usr/bin/${MY_RUBY}" "${dest}/bin/ruby"
 
 	## Install configs ##
-
 	insinto "${conf}"
 	doins -r config/*
 	doins "${FILESDIR}/gitlab_apache.conf"
@@ -180,23 +160,19 @@ all_ruby_install() {
 
 	echo "export RAILS_ENV=production" > "${D}/${HOME_DIR}/.profile"
 
-	## Install all others ##
-
 	# remove needless dirs
 	rm -Rf config tmp log
 
-	insinto "${dest}"
-	doins -r ./
-
+	#insinto "${dest}"
+	#doins -r ./
+	cp -a ./ "${D}${dest}"
+	
 	## Install logrotate config ##
-
 	dodir /etc/logrotate.d
-	sed -e "s|@LOG_DIR@|${logs}|" \
-		"${FILESDIR}"/gitlab.logrotate > "${D}"/etc/logrotate.d/${MY_NAME} \
-		|| die "failed to filter gitlab.logrotate"
-
+	insinto /etc/logrotate.d
+	doins lib/support/logrotate/gitlab
+	
 	## Install gems via bundler ##
-
 	cd "${D}/${dest}"
 
 	local without="development test thin"
@@ -204,7 +180,7 @@ all_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
-
+	
 	# may work to no longer need above patch
 	mkdir .bundle
 	bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
@@ -212,39 +188,30 @@ all_ruby_install() {
 	# require dev-libs/libxml2 and dev-libs/libxslt
 	bundle config build.nokogiri --use-system-libraries
 	
-
 	# shutup open_wr deny garbage due to nss/https
 	addwrite "/etc/pki"
-	einfo "Running bundle install ${bundle_args} ..."
-	${RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
 
-	## Clean ##
-
-	local gemsdir=vendor/bundle/ruby/$(ruby_rbconfig_value 'ruby_version')
-
+	# hacky way to install gems for all implementations while still using all_ruby_install
+	for B_RUBY in `ruby_get_use_implementations`;do
+		B_RUBY=$(ruby_implementation_command ${B_RUBY})
+		einfo "Running ${B_RUBY} /usr/bin/bundle install ${bundle_args} ..."
+		${B_RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
+	done
+	
 	# remove gems cache
-	rm -Rf ${gemsdir}/cache
-
+	rm -Rf vendor/bundle/ruby/*/cache
+	
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
 	
-	# chmod +x "${D}/${dest}"/bin/*
-
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
 		-e "s|@LOG_DIR@|${logs}|" \
 		"${D}/${conf}/gitlab_apache.conf" \
 		|| die "failed to filter gitlab_apache.conf"
 	
-	sed -i \
-		-e "s|/home/git/gitlab/tmp/pids/|/run/gitlab/|" \
-		-e "s|/home/git/gitlab/tmp/sockets/|/run/gitlab/|" \
-		-e "s|/home/git/gitlab|${dest}|" \
-		"${D}/${conf}/unicorn.rb.example" \
-		|| die "failed to filter unicorn.rb.example"
 
 	## RC scripts ##
-	
 	local tfile;
 	for tfile in ${PN}.init ${PN}.service ${PN}-worker.service ${PN}.tmpfile ; do
 		cp "${FILESDIR}/${tfile}" "${T}" || die
@@ -260,17 +227,14 @@ all_ruby_install() {
 	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service 
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
-	# logrotate
-	# lib/support/logrotate/gitlab
-
 	dosbin ${FILESDIR}/gitlab_rake.sh
-
 }
 
 pkg_postinst() {
 	# for some strange reason when the user account/home folder gets
 	# created root is the group
 	chown ${MY_USER}:${MY_USER} ${HOME_DIR}
+	chmod +x "${DEST_DIR}"/bin/*
 	
 	elog
 	elog "1. Copy ${CONF_DIR}/gitlab.yml.example to ${CONF_DIR}/gitlab.yml"
@@ -303,18 +267,10 @@ pkg_postinst() {
 	elog "   Note: to see all available commands: bundle exec rake -T"
 	elog "   Note: upgrade help - https://github.com/gitlabhq/gitlabhq/wiki"
 	elog
-
-	## rack attack
-	# https://github.com/gitlabhq/gitlabhq/blob/master/doc/update/6.1-to-6.2.md
-	# Copy rack attack middleware config 
-	# bash sudo -u git -H cp config/initializers/rack_attack.rb.example config/initializers/rack_attack.rb
-	# Uncomment config.middleware.use Rack::Attack in /home/git/gitlab/config/application.rb 
-
 }
 
 pkg_config() {
 	## Check config files existence ##
-
 	einfo "Checking configuration files"
 
 	if [ ! -r "${CONF_DIR}/database.yml" ] ; then
@@ -359,7 +315,7 @@ pkg_config() {
 gitlab_rake_exec() {
 	local COMMAND="${1}"
 	local RAILS_ENV=${RAILS_ENV:-production}
-	local RUBY=${RUBY:-${MY_RUBY}}
+	local RUBY=${RUBY:-/usr/bin/ruby}
 	local BUNDLE="${RUBY} /usr/bin/bundle"
 
 	su -l ${MY_USER} -c "
