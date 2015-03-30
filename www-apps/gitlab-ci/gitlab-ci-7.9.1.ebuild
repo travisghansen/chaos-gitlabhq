@@ -168,9 +168,13 @@ all_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
-
-	einfo "Running bundle install ${bundle_args} ..."
-	${RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
+	
+	# hacky way to install gems for all implementations while still using all_ruby_install
+	for B_RUBY in `ruby_get_use_implementations`;do
+		B_RUBY=$(ruby_implementation_command ${B_RUBY})
+		einfo "Running ${B_RUBY} /usr/bin/bundle install ${bundle_args} ..."
+		${B_RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
+	done
 
 	# clean gems cache
 	rm -Rf vendor/bundle/ruby/*/cache
@@ -181,7 +185,6 @@ all_ruby_install() {
 	fperms 640 ${conf}/database.yml
 
 	## RC script ##
-
 	local rcscript=gitlab-ci-unicorn.init
 
 	cp "${FILESDIR}/${rcscript}" "${T}" || die
