@@ -4,8 +4,7 @@
 
 EAPI="5"
 
-USE_RUBY="ruby21"
-MY_RUBY="ruby21"
+USE_RUBY="ruby20 ruby21"
 PYTHON_DEPEND="2:2.5"
 
 inherit eutils python ruby-ng user
@@ -20,7 +19,10 @@ IUSE=""
 
 GEMS_DEPEND=""
 DEPEND="${GEMS_DEPEND}
-	$(ruby_implementation_depend ${MY_RUBY} '=' -2.1.5*)[readline,ssl]
+	|| (
+		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
+		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
+	)
 	virtual/ssh"
 RDEPEND="${DEPEND}"
 
@@ -33,7 +35,7 @@ pkg_setup() {
     enewuser ${MY_USER} -1 /bin/bash ${HOME_DIR} "${MY_USER}"
 }
 
-each_ruby_prepare() {
+all_ruby_prepare() {
 	# change default homedir
 	# remove dependency on therubyracer and libv8 (we're using nodejs instead)
 	local tfile; for tfile in config.yml.example support/rewrite-hooks.sh support/truncate_repositories.sh; do
@@ -45,21 +47,9 @@ each_ruby_prepare() {
 	
 	# remove needless files
 	rm .gitignore
-	
-	for tfile in bin/*; do
-		sed -i -e "s|/usr/bin/env ruby|/usr/bin/env ${MY_RUBY}|g" ${tfile}
-	done
-	
-	#cd support
-	#local tfile; for tfile in rewrite-hooks.sh truncate_repositories.sh; do
-	#	sed -i \
-	#		-e "s|/home/git/|${HOME_DIR}/|" \
-	#		"${tfile}" || die "failed to filter ${tfile}"
-	#done
-	#die "failed"
 }
 
-each_ruby_install() {
+all_ruby_install() {
 	local dest=${DEST_DIR}
 
 	dodir "${dest}"

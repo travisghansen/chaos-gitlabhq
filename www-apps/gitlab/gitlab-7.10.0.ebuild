@@ -54,10 +54,10 @@ GEMS_DEPEND="
 DEPEND="${GEMS_DEPEND}
 	|| (
 		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
-		$(ruby_implementation_depend ruby21 '=' -2.1.5*)[readline,ssl]
+		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 	)
 	dev-util/cmake
-	=dev-vcs/gitlab-shell-2.6*
+	=dev-vcs/gitlab-shell-2.6.2*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
