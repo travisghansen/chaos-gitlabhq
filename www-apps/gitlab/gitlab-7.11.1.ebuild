@@ -74,9 +74,9 @@ ruby_add_bdepend "
 
 # gemfile problem here:
 # https://github.com/brianmario/charlock_holmes/issues/10#issuecomment-11899472
-RUBY_PATCHES=(
-	"${PN}-fix-gemfile-final.patch"
-)
+#RUBY_PATCHES=(
+#	"${PN}-fix-gemfile-final.patch"
+#)
 
 
 MY_NAME="gitlab"
@@ -175,7 +175,7 @@ all_ruby_install() {
 	## Install gems via bundler ##
 	cd "${D}/${dest}"
 
-	local without="development test thin"
+	local without="kerberos development test thin"
 	local flag; for flag in mysql postgres unicorn; do
 		without+="$(use $flag || echo ' '$flag)"
 	done
@@ -183,10 +183,11 @@ all_ruby_install() {
 	
 	# may work to no longer need above patch
 	mkdir .bundle
-	bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
+	#bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
+	bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic'
 	
 	# require dev-libs/libxml2 and dev-libs/libxslt
-	bundle config build.nokogiri --use-system-libraries
+	bundle config --local build.nokogiri --use-system-libraries
 	
 	# shutup open_wr deny garbage due to nss/https
 	addwrite "/etc/pki"
