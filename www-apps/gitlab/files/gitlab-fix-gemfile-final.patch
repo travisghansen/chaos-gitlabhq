@@ -1,5 +1,5 @@
 diff --git a/Gemfile b/Gemfile
-index 56fcd8d..8e8e552 100644
+index c47a947..af7a2f4 100644
 --- a/Gemfile
 +++ b/Gemfile
 @@ -1,5 +1,16 @@
@@ -19,26 +19,24 @@ index 56fcd8d..8e8e552 100644
  def darwin_only(require_as)
    RUBY_PLATFORM.include?('darwin') && require_as
  end
-@@ -28,7 +39,7 @@ gem 'omniauth-google-oauth2'
+@@ -28,7 +39,6 @@ gem 'omniauth-google-oauth2'
  gem 'omniauth-twitter'
  gem 'omniauth-github'
  gem 'omniauth-shibboleth'
--gem 'omniauth-kerberos'
-+
+-gem 'omniauth-kerberos', group: :kerberos
  gem 'omniauth-gitlab'
  gem 'omniauth-bitbucket'
  gem 'doorkeeper', '2.1.3'
-@@ -179,7 +190,7 @@ gem 'ace-rails-ap'
+@@ -181,7 +191,6 @@ gem 'ace-rails-ap'
  gem 'mousetrap-rails'
  
  # Detect and convert string character encoding
 -gem 'charlock_holmes'
-+
  
  gem "sass-rails", '~> 4.0.2'
  gem "coffee-rails"
 diff --git a/Gemfile.lock b/Gemfile.lock
-index 2fd5985..70c8f9f 100644
+index 529131f..34973e8 100644
 --- a/Gemfile.lock
 +++ b/Gemfile.lock
 @@ -1,3 +1,10 @@
@@ -52,7 +50,7 @@ index 2fd5985..70c8f9f 100644
  GEM
    remote: https://rubygems.org/
    specs:
-@@ -91,7 +98,6 @@ GEM
+@@ -96,7 +103,6 @@ GEM
        json (>= 1.7)
      celluloid (0.16.0)
        timers (~> 4.0.0)
@@ -60,7 +58,7 @@ index 2fd5985..70c8f9f 100644
      cliver (0.3.2)
      coderay (1.1.0)
      coercible (1.0.0)
-@@ -369,11 +375,6 @@ GEM
+@@ -378,11 +384,6 @@ GEM
      omniauth-google-oauth2 (0.2.5)
        omniauth (> 1.0)
        omniauth-oauth2 (~> 1.1)
@@ -72,7 +70,7 @@ index 2fd5985..70c8f9f 100644
      omniauth-oauth (1.0.1)
        oauth
        omniauth (~> 1.0)
-@@ -605,7 +606,6 @@ GEM
+@@ -622,7 +623,6 @@ GEM
      tilt (1.4.1)
      timers (4.0.1)
        hitimes
@@ -80,16 +78,16 @@ index 2fd5985..70c8f9f 100644
      tinder (1.9.3)
        eventmachine (~> 1.0)
        faraday (~> 0.8)
-@@ -677,7 +677,7 @@ DEPENDENCIES
-   cal-heatmap-rails (~> 0.0.1)
+@@ -696,7 +696,7 @@ DEPENDENCIES
    capybara (~> 2.2.1)
+   capybara-screenshot (~> 1.0.0)
    carrierwave
 -  charlock_holmes
 +  charlock_holmes!
    coffee-rails
    colored
    coveralls
-@@ -737,7 +737,6 @@ DEPENDENCIES
+@@ -756,7 +756,6 @@ DEPENDENCIES
    omniauth-github
    omniauth-gitlab
    omniauth-google-oauth2
