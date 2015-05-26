@@ -12,9 +12,8 @@ EAPI="5"
 #
 
 USE_RUBY="ruby19 ruby20 ruby21"
-PYTHON_DEPEND="2:2.7"
 
-inherit eutils git-2 python ruby-ng user
+inherit eutils git-2 ruby-ng user
 
 EGIT_REPO_URI="https://gitlab.com/gitlab-org/gitlab-ci-runner.git"
 if [[ ${PV} != *9999* ]] ; then
@@ -136,7 +135,7 @@ all_ruby_install() {
 
 	# clean gems cache
 	rm -Rf vendor/bundle/ruby/*/cache
-	
+
 	# create a workdir
 	dodir "${dest}/work"
 
@@ -165,8 +164,8 @@ all_ruby_install() {
 		-e "s|@RUN_DIR@|${runs}|" \
 		"${T}/${rcconf}" \
 		|| die "failed to filter ${rcconf}"
-	
-	
+
+
 	newinitd "${T}/${rcscript}" "${MY_NAME}"
 	newconfd "${T}/${rcconf}" "${MY_NAME}"
 }

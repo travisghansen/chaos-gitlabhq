@@ -12,9 +12,8 @@ EAPI="5"
 #
 
 USE_RUBY="ruby19 ruby20 ruby21"
-PYTHON_DEPEND="2:2.7"
 
-inherit eutils python ruby-ng user
+inherit eutils ruby-ng user
 
 DESCRIPTION="GitLab CI is a continuous integration server that is tightly integrated with GitLab"
 HOMEPAGE="https://gitlab.com/gitlab-org/gitlab-ci"
@@ -82,12 +81,12 @@ all_ruby_prepare() {
 		-e "s|/home/gitlab_ci/gitlab-ci/log|${LOGS_DIR}|" \
 		-e "s|/home/gitlab_ci/gitlab-ci|${DEST_DIR}|" \
 		config/unicorn.rb.example || die "failed to filter unicorn.rb.example"
-	
+
 	sed -i \
 		-e "s|/home/gitlab_ci/gitlab-ci/tmp/sockets|${RUN_DIR}|" \
 		-e "s|/home/gitlab_ci/gitlab-ci/public|${DEST_DIR}/public|" \
 		lib/support/nginx/gitlab_ci || die "failed to filter nginx/gitlab_ci"
-	
+
 	# modify default database settings for PostgreSQL
 	sed -i -E \
 		-e 's|(username:).*|\1 gitlab|' \
@@ -112,7 +111,7 @@ all_ruby_prepare() {
 		mv ${dbconf}.mysql ${dbconf}
 		rm ${dbconf}.postgresql
 	fi
-	
+
 	# remove useless files
 	rm -r lib/support/init.d
 }
@@ -168,7 +167,7 @@ all_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
-	
+
 	# hacky way to install gems for all implementations while still using all_ruby_install
 	for B_RUBY in `ruby_get_use_implementations`;do
 		B_RUBY=$(ruby_implementation_command ${B_RUBY})
@@ -234,14 +233,14 @@ pkg_config() {
 
 	if [ ! -r "${CONF_DIR}/database.yml" ]; then
 		eerror "Copy ${CONF_DIR}/database.yml.* to"
-		eerror "${CONF_DIR}/database.yml and edit this file in order to configure your" 
+		eerror "${CONF_DIR}/database.yml and edit this file in order to configure your"
 		eerror "database settings for \"production\" environment."; die
 	fi
 
 
 	local email_from="$(ryaml ${CONF_DIR}/application.yml production gitlab_ci email_from)"
 	local gitlab_ci_home="$(egethome ${MY_USER})"
-	
+
 	# configure Git global settings
 	if [ ! -e "${gitlab_ci_home}/.gitconfig" ]; then
 		einfo "Setting git user"
@@ -285,7 +284,7 @@ pkg_config() {
 		einfo "Setting up cron schedules ..."
 		exec_rake whenever -w
 	fi
-	
+
 	if [ "${update}" = 'true' ]; then
 		ewarn
 		ewarn "This configuration script runs only common migration tasks."

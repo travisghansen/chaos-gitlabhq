@@ -16,10 +16,9 @@ EAPI="5"
 
 USE_RUBY="ruby20 ruby21"
 #MY_RUBY="ruby21"
-PYTHON_DEPEND="2:2.5"
 MY_P="gitlabhq"
 
-inherit eutils python ruby-ng systemd
+inherit eutils ruby-ng systemd
 
 DESCRIPTION="GitLab is a free project and repository management application"
 HOMEPAGE="https://about.gitlab.com"
@@ -36,7 +35,6 @@ RUBY_S="${MY_P}-${PV}"
 #	grape, capybara		dev-libs/libxml2, dev-libs/libxslt
 #   json				dev-util/ragel
 #   yajl-ruby			dev-libs/yajl
-#   pygments.rb			python 2.5+
 #   execjs				net-libs/nodejs, or any other JS runtime
 #   pg					dev-db/postgresql
 #   mysql				virtual/mysql
@@ -66,8 +64,7 @@ DEPEND="${GEMS_DEPEND}
 
 RDEPEND="${DEPEND}
 	dev-db/redis
-	virtual/mta
-	dev-python/docutils"
+	virtual/mta"
 ruby_add_bdepend "
 	virtual/rubygems
 	>=dev-ruby/bundler-1.0"
@@ -99,7 +96,7 @@ all_ruby_prepare() {
 		-e "s|/home/git/gitlab-satellites/|${gitlab_satellites}|" \
 		-e "s|/home/git/gitlab-shell/|${gitlab_shell}|" \
 		config/gitlab.yml.example || die "failed to filter gitlab.yml.example"
-	
+
 	# modify database settings
 	sed -i \
 		-e 's|\(username:\) postgres.*|\1 gitlab|' \
@@ -107,20 +104,20 @@ all_ruby_prepare() {
 		-e 's|\(socket:\).*|/run/postgresql/.s.PGSQL.5432|' \
 		config/database.yml.postgresql \
 		|| die "failed to filter database.yml.postgresql"
-	
+
 	sed -i \
 		-e "s|/home/git/gitlab/log|/var/log/gitlab|" \
 		-e "s|/home/git/gitlab-shell|/var/lib/gitlab/gitlab-shell|" \
 		lib/support/logrotate/gitlab \
 		|| die "failed to filter gitlab.logrotate"
-	
+
 	sed -i \
 		-e "s|/home/git/gitlab/tmp/pids/|/run/gitlab/|" \
 		-e "s|/home/git/gitlab/tmp/sockets/|/run/gitlab/|" \
 		-e "s|/home/git/gitlab|${dest}|" \
 		config/unicorn.rb.example \
 		|| die "failed to filter unicorn.rb.example"
-	
+
 	# remove needless files
 	rm .foreman .gitignore Procfile
 	use unicorn || rm config/unicorn.rb.example
@@ -134,7 +131,7 @@ all_ruby_install() {
 	local temp=/var/tmp/${MY_NAME}
 	local logs=/var/log/${MY_NAME}
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
-	
+
 	## Prepare directories ##
 	diropts -m750
 	keepdir "${logs}"
@@ -143,7 +140,7 @@ all_ruby_install() {
 
 	diropts -m755
 	keepdir "${conf}"
-	dodir "${dest}" 
+	dodir "${dest}"
 
 	dosym "${temp}" "${dest}/tmp"
 	dosym "${logs}" "${dest}/log"
@@ -166,12 +163,12 @@ all_ruby_install() {
 	#insinto "${dest}"
 	#doins -r ./
 	cp -a ./ "${D}${dest}"
-	
+
 	## Install logrotate config ##
 	dodir /etc/logrotate.d
 	insinto /etc/logrotate.d
 	doins lib/support/logrotate/gitlab
-	
+
 	## Install gems via bundler ##
 	cd "${D}/${dest}"
 
@@ -180,15 +177,15 @@ all_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}}"
-	
+
 	# may work to no longer need above patch
 	mkdir .bundle
 	#bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic -Wl,--no-undefined -lz -licuuc'
 	bundle config --local build.charlock_holmes --with-ldflags='-L. -Wl,-O1 -Wl,--as-needed -rdynamic -Wl,-export-dynamic'
-	
+
 	# require dev-libs/libxml2 and dev-libs/libxslt
 	bundle config --local build.nokogiri --use-system-libraries
-	
+
 	# shutup open_wr deny garbage due to nss/https
 	addwrite "/etc/pki"
 
@@ -198,19 +195,19 @@ all_ruby_install() {
 		einfo "Running ${B_RUBY} /usr/bin/bundle install ${bundle_args} ..."
 		${B_RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"
 	done
-	
+
 	# remove gems cache
 	rm -Rf vendor/bundle/ruby/*/cache
-	
+
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
-	
+
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
 		-e "s|@LOG_DIR@|${logs}|" \
 		"${D}/${conf}/gitlab_apache.conf" \
 		|| die "failed to filter gitlab_apache.conf"
-	
+
 
 	## RC scripts ##
 	local tfile;
@@ -223,9 +220,9 @@ all_ruby_install() {
 			-e "s|@LOG_DIR@|${logs}|" \
 			"${T}/${tfile}" || die "failed to filter ${tfile}"
 	done
-	
+
 	newinitd "${T}/gitlab.init" "${MY_NAME}"
-	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service 
+	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
 	dosbin ${FILESDIR}/gitlab_rake.sh
@@ -236,7 +233,7 @@ pkg_postinst() {
 	# created root is the group
 	chown ${MY_USER}:${MY_USER} ${HOME_DIR}
 	chmod +x "${DEST_DIR}"/bin/*
-	
+
 	elog
 	elog "1. Copy ${CONF_DIR}/gitlab.yml.example to ${CONF_DIR}/gitlab.yml"
 	elog "   and edit this file in order to configure your GitLab settings."
@@ -276,7 +273,7 @@ pkg_config() {
 
 	if [ ! -r "${CONF_DIR}/database.yml" ] ; then
 		eerror "Copy ${CONF_DIR}/database.yml.* to"
-		eerror "${CONF_DIR}/database.yml and edit this file in order to configure your" 
+		eerror "${CONF_DIR}/database.yml and edit this file in order to configure your"
 		eerror "database settings for \"production\" environment."
 		die
 	fi
@@ -301,13 +298,13 @@ pkg_config() {
 		einfo "Initializing database ..."
 		gitlab_rake_exec "gitlab:setup"
 	fi
-	
+
 	einfo "Upgrading/Migrating database ..."
 	gitlab_rake_exec "db:migrate" || die "failed to migrate db"
-	
+
 	einfo "shell setup ..."
 	gitlab_rake_exec "gitlab:shell:setup" || die "failed shell setup"
-	
+
 	## standard items
 	einfo "Preparing assets/cache ..."
 	gitlab_rake_exec "assets:clean assets:precompile cache:clear" || die "failed to prepare assets/cache"
