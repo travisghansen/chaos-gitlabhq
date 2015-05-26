@@ -5,9 +5,8 @@
 EAPI="5"
 
 USE_RUBY="ruby20 ruby21"
-PYTHON_DEPEND="2:2.5"
 
-inherit eutils python ruby-ng user
+inherit eutils ruby-ng user
 
 DESCRIPTION="GitLab shell"
 HOMEPAGE="https://github.com/gitlabhq/gitlab-shell"
@@ -44,7 +43,7 @@ all_ruby_prepare() {
 			-e "s|/home/git|${HOME_DIR}|" \
 			"${tfile}" || die "failed to filter ${tfile}"
 	done
-	
+
 	# remove needless files
 	rm .gitignore
 }
@@ -54,7 +53,7 @@ all_ruby_install() {
 
 	dodir "${dest}"
 	cp -R ./ "${D}"/"${DEST_DIR}"
-	
+
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}"
 
@@ -78,7 +77,7 @@ pkg_postinst() {
 	# for some strange reason when the user account/home folder gets
 	# created root is the group
 	chown ${MY_USER}:${MY_USER} ${HOME_DIR}
-	
+
 	elog
 	elog "1. Copy ${DEST_DIR}/config.yml.example to ${DEST_DIR}/config.yml"
 	elog "   and edit this file in order to configure your GitLab settings."
