@@ -1,4 +1,4 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -30,8 +30,8 @@ HOME_DIR="/var/lib/gitlab"
 DEST_DIR="${HOME_DIR}/${PN}"
 
 pkg_setup() {
-    enewgroup ${MY_USER}
-    enewuser ${MY_USER} -1 /bin/bash ${HOME_DIR} "${MY_USER}"
+	enewgroup ${MY_USER}
+	enewuser ${MY_USER} -1 /bin/bash ${HOME_DIR} "${MY_USER}"
 }
 
 all_ruby_prepare() {

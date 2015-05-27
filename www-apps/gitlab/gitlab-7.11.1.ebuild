@@ -1,9 +1,8 @@
-# Copyright 1999-2012 Gentoo Foundation
+# Copyright 1999-2015 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
 EAPI="5"
-
 
 # Mainteiner notes:
 # - This ebuild uses Bundler to download and install all gems in deployment mode
@@ -54,7 +53,6 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 	)
-	dev-util/cmake
 	=dev-vcs/gitlab-shell-2.6.3*
 	dev-libs/libxml2
 	dev-libs/libxslt
@@ -74,7 +72,6 @@ ruby_add_bdepend "
 #RUBY_PATCHES=(
 #	"${PN}-fix-gemfile-final.patch"
 #)
-
 
 MY_NAME="gitlab"
 MY_USER="git"
@@ -208,7 +205,6 @@ all_ruby_install() {
 		"${D}/${conf}/gitlab_apache.conf" \
 		|| die "failed to filter gitlab_apache.conf"
 
-
 	## RC scripts ##
 	local tfile;
 	for tfile in ${PN}.init ${PN}.service ${PN}-worker.service ${PN}.tmpfile ; do
@@ -222,10 +218,10 @@ all_ruby_install() {
 	done
 
 	newinitd "${T}/gitlab.init" "${MY_NAME}"
-	systemd_dounit "${T}"/${PN}.service ${T}/${PN}-worker.service
+	systemd_dounit "${T}"/${PN}.service "${T}"/${PN}-worker.service
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
-	dosbin ${FILESDIR}/gitlab_rake.sh
+	dosbin "${FILESDIR}"/gitlab_rake.sh
 }
 
 pkg_postinst() {
@@ -245,14 +241,14 @@ pkg_postinst() {
 	elog "3. Then you should create database for your GitLab instance."
 	elog
 	if use postgres; then
-        elog   "If you have local PostgreSQL running, just copy&run:"
-        elog "      su postgres"
-        elog "      psql -c \"CREATE ROLE gitlab PASSWORD 'gitlab' \\"
-        elog "          NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;\""
-        elog "      createdb -E UTF-8 -O gitlab gitlabhq_production"
+		elog   "If you have local PostgreSQL running, just copy&run:"
+		elog "      su postgres"
+		elog "      psql -c \"CREATE ROLE gitlab PASSWORD 'gitlab' \\"
+		elog "          NOSUPERUSER NOCREATEDB NOCREATEROLE INHERIT LOGIN;\""
+		elog "      createdb -E UTF-8 -O gitlab gitlabhq_production"
 		elog "  Note: You should change your password to something more random..."
 		elog
- 		elog "  GitLab uses polymorphic associations which are not SQL-standard friendly."
+		elog "  GitLab uses polymorphic associations which are not SQL-standard friendly."
 		elog "  To get it work you must use this ugly workaround:"
 		elog "      psql -U postgres -d gitlabhq_production"
 		elog "      CREATE CAST (integer AS text) WITH INOUT AS IMPLICIT;"
