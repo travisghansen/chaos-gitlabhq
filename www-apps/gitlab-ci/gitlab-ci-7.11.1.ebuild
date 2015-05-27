@@ -29,7 +29,7 @@ IUSE="mysql +postgres"
 ## Gems dependencies:
 #   charlock_holmes		dev-libs/icu
 #   grape, capybara		dev-libs/libxml2, dev-libs/libxslt
-#   pg					dev-db/postgresql-base
+#   pg					dev-db/postgresql
 #   mysql				virtual/mysql
 #
 
@@ -37,7 +37,7 @@ GEMS_DEPEND="
 	dev-libs/icu
 	dev-libs/libxml2
 	dev-libs/libxslt
-	postgres? ( dev-db/postgresql-base )
+	postgres? ( dev-db/postgresql )
 	mysql? ( virtual/mysql )"
 DEPEND="${GEMS_DEPEND}
 	dev-vcs/git"
