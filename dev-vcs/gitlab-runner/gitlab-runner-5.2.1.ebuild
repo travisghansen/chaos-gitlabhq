@@ -11,7 +11,7 @@ EAPI="5"
 #    will be too difficult to maintain them via ebuilds.
 #
 
-USE_RUBY="ruby19 ruby20 ruby21"
+USE_RUBY="ruby20 ruby21"
 
 inherit eutils git-2 ruby-ng user
 

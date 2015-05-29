@@ -60,9 +60,14 @@ DEPEND="${GEMS_DEPEND}
 	net-libs/nodejs
 	virtual/ssh"
 
+# deps to support different doctypes, etc
+# https://github.com/gitlabhq/markup#markups
 RDEPEND="${DEPEND}
+	app-text/asciidoc
 	dev-db/redis
+	dev-python/docutils
 	virtual/mta"
+
 ruby_add_bdepend "
 	virtual/rubygems
 	>=dev-ruby/bundler-1.0"
@@ -196,8 +201,6 @@ all_ruby_install() {
 	# remove gems cache
 	rm -Rf vendor/bundle/ruby/*/cache
 
-	# fix permissions
-	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
 
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
@@ -217,11 +220,17 @@ all_ruby_install() {
 			"${T}/${tfile}" || die "failed to filter ${tfile}"
 	done
 
+	# copy gentoo init in place to ensure gitlab:check rake command works
+	cp -f "${T}/gitlab.init" "${D}${dest}/lib/support/init.d/gitlab"
 	newinitd "${T}/gitlab.init" "${MY_NAME}"
+	
 	systemd_dounit "${T}"/${PN}.service "${T}"/${PN}-worker.service
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
 	dosbin "${FILESDIR}"/gitlab_rake.sh
+	
+	# fix permissions
+	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
 }
 
 pkg_postinst() {
@@ -264,6 +273,7 @@ pkg_postinst() {
 }
 
 pkg_config() {
+	local RUBY=${RUBY:-/usr/bin/ruby}
 	## Check config files existence ##
 	einfo "Checking configuration files"
 
@@ -298,12 +308,28 @@ pkg_config() {
 	einfo "Upgrading/Migrating database ..."
 	gitlab_rake_exec "db:migrate" || die "failed to migrate db"
 
-	einfo "shell setup ..."
-	gitlab_rake_exec "gitlab:shell:setup" || die "failed shell setup"
+	#einfo "shell setup ..."
+	#gitlab_rake_exec "gitlab:shell:setup" || die "failed shell setup"
 
 	## standard items
 	einfo "Preparing assets/cache ..."
 	gitlab_rake_exec "assets:clean assets:precompile cache:clear" || die "failed to prepare assets/cache"
+
+	## gitlab:check sanity
+	GITLAB_REPO_PATH=`$RUBY -e "require 'yaml'; @config = YAML.load_file('${CONF_DIR}/gitlab.yml'); puts @config['production']['gitlab_shell']['repos_path'];"`
+	GITLAB_EMAIL_FROM=`$RUBY -e "require 'yaml'; @config = YAML.load_file('${CONF_DIR}/gitlab.yml'); puts @config['production']['gitlab']['email_from'];"`
+
+	if [ -d "${GITLAB_REPO_PATH}" ] ; then
+		einfo "Ensuring proper permissions on repositories (${GITLAB_REPO_PATH})"
+		chmod -R ug+rwX,o-rwx "${GITLAB_REPO_PATH}"
+		chmod -R ug-s "${GITLAB_REPO_PATH}"
+		find "${GITLAB_REPO_PATH}" -type d -print0 | xargs -0 chmod g+s
+	fi
+
+	if [ "x${GITLAB_EMAIL_FROM}" != "x" ] ; then
+		einfo "Ensuring proper git config values"
+		su -l ${MY_USER} -c "git config --global user.email '${GITLAB_EMAIL_FROM}';"
+	fi
 }
 
 gitlab_rake_exec() {
