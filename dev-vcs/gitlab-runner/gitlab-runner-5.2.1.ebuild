@@ -128,7 +128,7 @@ all_ruby_install() {
 
 	cd "${D}/${dest}"
 
-	local bundle_args="--deployment"
+	local bundle_args="--deployment --jobs $(nproc)"
 
 	einfo "Running bundle install ${bundle_args} ..."
 	${RUBY} /usr/bin/bundle install ${bundle_args} || die "bundler failed"

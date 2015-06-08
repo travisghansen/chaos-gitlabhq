@@ -178,7 +178,7 @@ all_ruby_install() {
 	local flag; for flag in mysql postgres unicorn; do
 		without+="$(use $flag || echo ' '$flag)"
 	done
-	local bundle_args="--deployment ${without:+--without ${without}}"
+	local bundle_args="--deployment ${without:+--without ${without}} --jobs $(nproc)"
 
 	# may work to no longer need above patch
 	mkdir .bundle

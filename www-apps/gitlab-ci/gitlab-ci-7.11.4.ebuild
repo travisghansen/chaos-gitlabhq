@@ -166,7 +166,7 @@ all_ruby_install() {
 	local flag; for flag in mysql postgres; do
 		without+="$(use $flag || echo ' '$flag)"
 	done
-	local bundle_args="--deployment ${without:+--without ${without}}"
+	local bundle_args="--deployment ${without:+--without ${without}} --jobs $(nproc)"
 
 	# hacky way to install gems for all implementations while still using all_ruby_install
 	for B_RUBY in `ruby_get_use_implementations`;do
