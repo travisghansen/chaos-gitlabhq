@@ -167,6 +167,14 @@ all_ruby_install() {
 		without+="$(use $flag || echo ' '$flag)"
 	done
 	local bundle_args="--deployment ${without:+--without ${without}} --jobs $(nproc)"
+	
+	mkdir .bundle
+	# require dev-libs/libxml2 and dev-libs/libxslt
+	bundle config --local build.nokogiri --use-system-libraries
+	export NOKOGIRI_USE_SYSTEM_LIBRARIES=1
+
+	# shutup open_wr deny garbage due to nss/https
+	addwrite "/etc/pki"
 
 	# hacky way to install gems for all implementations while still using all_ruby_install
 	for B_RUBY in `ruby_get_use_implementations`;do
