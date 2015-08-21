@@ -54,6 +54,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 	)
 	=dev-vcs/gitlab-shell-2.6.3*
+	=dev-libs/libgit2-0.22*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -187,6 +188,11 @@ all_ruby_install() {
 
 	# require dev-libs/libxml2 and dev-libs/libxslt
 	bundle config --local build.nokogiri --use-system-libraries
+
+	# https://github.com/fritteli/gentoo-overlay/issues/22
+	# basically if http-parser is installed locally then rugged fails to build
+	# require dev-libs/libgit2 and net-libs/http-parser
+	bundle config --local build.rugged --use-system-libraries
 
 	# shutup open_wr deny garbage due to nss/https
 	addwrite "/etc/pki"
