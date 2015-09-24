@@ -13,7 +13,7 @@ EAPI="5"
 # - rbelem in #gitlab has been very helpful
 #
 
-USE_RUBY="ruby20 ruby21"
+USE_RUBY="ruby21 ruby22"
 #MY_RUBY="ruby21"
 MY_P="gitlabhq"
 
@@ -50,8 +50,8 @@ GEMS_DEPEND="
 
 DEPEND="${GEMS_DEPEND}
 	|| (
-		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
+		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
 	=dev-vcs/gitlab-shell-2.6.5*
 	=dev-libs/libgit2-0.22*
@@ -276,6 +276,14 @@ pkg_postinst() {
 	elog "   Note: to see all available commands: bundle exec rake -T"
 	elog "   Note: upgrade help - https://github.com/gitlabhq/gitlabhq/wiki"
 	elog
+	elog
+	elog "Version 8.x has added several new features and integrated CI directly into the package"
+	elog "Pleare review the following if updating from 7.x:"
+	elog "   https://about.gitlab.com/2015/09/22/gitlab-8-0-released/"
+	elog "   https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/update/7.14-to-8.0.md"
+	elog "   https://gitlab.com/gitlab-org/gitlab-git-http-server"
+	elog "   http://doc.gitlab.com/ce/migrate_ci_to_ce/README.html"
+	elog "   http://doc.gitlab.com/ce/incoming_email/README.html" 
 }
 
 pkg_config() {

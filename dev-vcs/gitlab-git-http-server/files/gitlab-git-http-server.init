@@ -1,0 +1,39 @@
+#!/sbin/runscript
+
+name="GitLab git HTTP server"
+description="GitLab http git access"
+
+: ${gitlab_git_http_server_user:="git"}
+: ${gitlab_git_http_server_group:="git"}
+: ${gitlab_git_http_server_repo_root:="/var/lib/gitlab/repositories/"}
+: ${gitlab_git_http_server_options:=""}
+
+: ${gitlab_git_http_server_pidfile:="/run/gitlab-git-http-server/gitlab-git-http-server.pid"}
+
+server_command="/usr/bin/gitlab-git-http-server"
+server_command_args+=" ${gitlab_git_http_server_options} ${gitlab_git_http_server_repo_root}"
+server_log="/var/log/gitlab-git-http-server/server.log"
+
+depend() {
+	use net gitlab
+}
+
+start() {
+	ebegin "Starting ${name}"
+	checkpath -d -o "${gitlab_git_http_server_user}:${gitlab_git_http_server_group}" -m750 "$(dirname "${gitlab_git_http_server_pidfile}")"
+	
+	start-stop-daemon --start --env PATH=${PATH} --quiet \
+		--user="${gitlab_git_http_server_user}:${gitlab_git_http_server_group}" \
+		--pidfile="${gitlab_git_http_server_pidfile}" \
+		--stdout "${server_log}" --stderr "${server_log}" \
+		--make-pidfile --background \
+		--exec ${server_command} -- ${server_command_args}
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ${name}"
+	start-stop-daemon --stop \
+		--pidfile=${gitlab_git_http_server_pidfile}
+	eend $?
+}
