@@ -280,6 +280,7 @@ pkg_postinst() {
 	elog "Version 8.x has added several new features and integrated CI directly into the package"
 	elog "Pleare review the following if updating from 7.x:"
 	elog "   https://about.gitlab.com/2015/09/22/gitlab-8-0-released/"
+	elog "   http://doc.gitlab.com/ce/update/7.14-to-8.0.html"
 	elog "   https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/update/7.14-to-8.0.md"
 	elog "   https://gitlab.com/gitlab-org/gitlab-git-http-server"
 	elog "   http://doc.gitlab.com/ce/migrate_ci_to_ce/README.html"
