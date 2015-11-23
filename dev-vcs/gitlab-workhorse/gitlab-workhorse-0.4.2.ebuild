@@ -8,12 +8,13 @@ inherit golang-base
 
 DESCRIPTION="Management Controller for UniFi APs"
 HOMEPAGE="http://wiki.ubnt.com/UniFi_FAQ"
-SRC_URI="https://gitlab.com/gitlab-org/gitlab-git-http-server/repository/archive.tar.bz2?ref=${PV} -> ${P}.tar.bz2"
+SRC_URI="https://gitlab.com/gitlab-org/${PN}/repository/archive.tar.bz2?ref=${PV} -> ${P}.tar.bz2"
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
+DEPEND="!dev-vcs/gitlab-git-http-server"
 # TODO: depend on gitlab-shell to ensure git user?
 
 src_unpack() {
@@ -26,8 +27,8 @@ src_compile() {
 }
 
 src_install() {
-	keepdir /var/log/gitlab-git-http-server/
-	fowners -R git:git /var/log/gitlab-git-http-server/
+	keepdir /var/log/${PN}/
+	fowners -R git:git /var/log/${PN}/
 	into /usr
 	dobin ${PN}
 	newinitd "${FILESDIR}/${PN}.init" "${PN}"

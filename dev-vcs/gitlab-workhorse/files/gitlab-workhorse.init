@@ -1,0 +1,39 @@
+#!/sbin/runscript
+
+name="GitLab Workhorse"
+description="GitLab Workhorse"
+
+: ${gitlab_workhorse_user:="git"}
+: ${gitlab_workhorse_group:="git"}
+: ${gitlab_workhorse_repo_root:="/var/lib/gitlab/repositories/"}
+: ${gitlab_workhorse_options:=""}
+
+: ${gitlab_workhorse_pidfile:="/run/gitlab-workhorse/gitlab-workhorse.pid"}
+
+server_command="/usr/bin/gitlab-workhorse"
+server_command_args+=" ${gitlab_workhorse_options} ${gitlab_workhorse_repo_root}"
+server_log="/var/log/gitlab-workhorse/server.log"
+
+depend() {
+	use net gitlab
+}
+
+start() {
+	ebegin "Starting ${name}"
+	checkpath -d -o "${gitlab_workhorse_user}:${gitlab_workhorse_group}" -m750 "$(dirname "${gitlab_workhorse_pidfile}")"
+	
+	start-stop-daemon --start --env PATH=${PATH} --quiet \
+		--user="${gitlab_workhorse_user}:${gitlab_workhorse_group}" \
+		--pidfile="${gitlab_workhorse_pidfile}" \
+		--stdout "${server_log}" --stderr "${server_log}" \
+		--make-pidfile --background \
+		--exec ${server_command} -- ${server_command_args}
+	eend $?
+}
+
+stop() {
+	ebegin "Stopping ${name}"
+	start-stop-daemon --stop \
+		--pidfile=${gitlab_workhorse_pidfile}
+	eend $?
+}

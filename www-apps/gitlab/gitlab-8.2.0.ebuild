@@ -53,8 +53,8 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
-	=dev-vcs/gitlab-shell-2.6.5*
-	=dev-libs/libgit2-0.22*
+	=dev-vcs/gitlab-shell-2.6.7*
+	=dev-libs/libgit2-0.23*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -282,7 +282,7 @@ pkg_postinst() {
 	elog "   https://about.gitlab.com/2015/09/22/gitlab-8-0-released/"
 	elog "   http://doc.gitlab.com/ce/update/7.14-to-8.0.html"
 	elog "   https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/update/7.14-to-8.0.md"
-	elog "   https://gitlab.com/gitlab-org/gitlab-git-http-server"
+	elog "   https://gitlab.com/gitlab-org/gitlab-workhorse"
 	elog "   http://doc.gitlab.com/ce/migrate_ci_to_ce/README.html"
 	elog "   http://doc.gitlab.com/ce/incoming_email/README.html" 
 }
