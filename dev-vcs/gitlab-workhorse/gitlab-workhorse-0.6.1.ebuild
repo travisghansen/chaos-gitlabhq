@@ -23,14 +23,14 @@ src_unpack() {
 }
 
 src_compile() {
-	make
+	emake
 }
 
 src_install() {
 	keepdir /var/log/${PN}/
 	fowners -R git:git /var/log/${PN}/
-	into /usr
-	dobin ${PN}
+	dodir /usr/bin
+	emake install PREFIX=${D}/usr
 	newinitd "${FILESDIR}/${PN}.init" "${PN}"
 	newconfd "${FILESDIR}/${PN}.conf" "${PN}"
 }
