@@ -53,6 +53,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
+	>=dev-vcs/git-2.7.3
 	=dev-vcs/gitlab-shell-2.6.10*
 	dev-libs/libxml2
 	dev-libs/libxslt
