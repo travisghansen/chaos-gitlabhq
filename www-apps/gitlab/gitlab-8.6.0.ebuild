@@ -54,7 +54,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-2.6.10*
+	=dev-vcs/gitlab-shell-2.6.11*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -89,7 +89,7 @@ DEST_DIR="${HOME_DIR}/${MY_NAME}"
 CONF_DIR="/etc/${MY_NAME}"
 
 all_ruby_prepare() {
-	# fix Gitolite paths
+	local dest=${DEST_DIR}
 	local gitlab_repos="${HOME_DIR}/repositories"
 	local gitlab_hooks="${HOME_DIR}/gitlab-shell/hooks"
 	local gitlab_satellites="${HOME_DIR}/gitlab-satellites/"
@@ -122,6 +122,11 @@ all_ruby_prepare() {
 		-e "s|/home/git/gitlab/tmp/sockets/|/run/gitlab/|" \
 		-e "s|/home/git/gitlab|${dest}|" \
 		config/unicorn.rb.example \
+		|| die "failed to filter unicorn.rb.example"
+
+	sed -i \
+		-e "s|require_relative '../lib/|require_relative '${dest}/lib/|" \
+		config/application.rb \
 		|| die "failed to filter unicorn.rb.example"
 
 	# remove needless files

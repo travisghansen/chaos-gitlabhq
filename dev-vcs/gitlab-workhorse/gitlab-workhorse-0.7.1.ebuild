@@ -8,7 +8,7 @@ inherit golang-base
 
 DESCRIPTION="Management Controller for UniFi APs"
 HOMEPAGE="http://wiki.ubnt.com/UniFi_FAQ"
-SRC_URI="https://gitlab.com/gitlab-org/${PN}/repository/archive.tar.bz2?ref=${PV} -> ${P}.tar.bz2"
+SRC_URI="https://gitlab.com/gitlab-org/${PN}/repository/archive.tar.bz2?ref=v${PV} -> ${P}.tar.bz2"
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
@@ -19,7 +19,7 @@ DEPEND="!dev-vcs/gitlab-git-http-server"
 
 src_unpack() {
 	unpack "${A}"
-	S="${WORKDIR}/$(basename "${WORKDIR}/${P}-"*)"
+	S="${WORKDIR}/$(basename "${WORKDIR}/${PN}-v${PV}"*)"
 }
 
 src_compile() {
