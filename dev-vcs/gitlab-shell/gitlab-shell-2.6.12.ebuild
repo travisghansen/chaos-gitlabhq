@@ -19,8 +19,8 @@ IUSE=""
 GEMS_DEPEND=""
 DEPEND="${GEMS_DEPEND}
 	|| (
-		$(ruby_implementation_depend ruby20 '=' -2.0.0*)[readline,ssl]
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
+		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
 	virtual/ssh"
 RDEPEND="${DEPEND}"
