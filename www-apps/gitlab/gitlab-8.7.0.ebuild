@@ -54,7 +54,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-2.6.12*
+	=dev-vcs/gitlab-shell-2.7.2*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -353,6 +353,9 @@ pkg_config() {
 		einfo "Ensuring proper git config values"
 		su -l ${MY_USER} -c "git config --global user.email '${GITLAB_EMAIL_FROM}';"
 	fi
+	
+	su -l ${MY_USER} -c "git config --global core.autocrlf input;"
+	su -l ${MY_USER} -c "git config --global gc.auto 0;"
 }
 
 gitlab_rake_exec() {
