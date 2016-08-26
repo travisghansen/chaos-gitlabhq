@@ -23,6 +23,7 @@ src_unpack() {
 }
 
 src_compile() {
+	emake clean-build
 	emake
 }
 
