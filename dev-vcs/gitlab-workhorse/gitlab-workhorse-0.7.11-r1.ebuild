@@ -30,6 +30,12 @@ src_compile() {
 src_install() {
 	keepdir /var/log/${PN}/
 	fowners -R git:git /var/log/${PN}/
+
+    ## Install logrotate config ##
+	dodir /etc/logrotate.d
+	insinto /etc/logrotate.d
+	newins "${FILESDIR}/${PN}.logrotate" ${PN}
+
 	dodir /usr/bin
 	emake install PREFIX=${D}/usr
 	newinitd "${FILESDIR}/${PN}.init" "${PN}"
