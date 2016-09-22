@@ -13,8 +13,7 @@ EAPI="5"
 # - rbelem in #gitlab has been very helpful
 #
 
-USE_RUBY="ruby21 ruby22"
-#MY_RUBY="ruby21"
+USE_RUBY="ruby21 ruby22 ruby23"
 MY_P="gitlabhq"
 
 inherit eutils ruby-ng systemd
@@ -52,9 +51,10 @@ DEPEND="${GEMS_DEPEND}
 	|| (
 		$(ruby_implementation_depend ruby21 '=' -2.1*)[readline,ssl]
 		$(ruby_implementation_depend ruby22 '=' -2.2*)[readline,ssl]
+		$(ruby_implementation_depend ruby23 '=' -2.3*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-3.4.0*
+	=dev-vcs/gitlab-shell-3.6.0*
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl

@@ -14,7 +14,8 @@ LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
 IUSE=""
 
-DEPEND="!dev-vcs/gitlab-git-http-server"
+DEPEND="!dev-vcs/gitlab-git-http-server
+	>=dev-lang/go-1.6.3"
 # TODO: depend on gitlab-shell to ensure git user?
 
 src_unpack() {
