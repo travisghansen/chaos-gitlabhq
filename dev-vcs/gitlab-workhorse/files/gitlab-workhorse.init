@@ -6,6 +6,7 @@ description="GitLab Workhorse"
 : ${gitlab_workhorse_user:="git"}
 : ${gitlab_workhorse_group:="git"}
 : ${gitlab_workhorse_repo_root:="/var/lib/gitlab/repositories/"}
+: ${gitlab_root:="/var/lib/gitlab/gitlab/"}
 : ${gitlab_workhorse_options:=""}
 
 : ${gitlab_workhorse_pidfile:="/run/gitlab-workhorse/gitlab-workhorse.pid"}
@@ -27,6 +28,7 @@ start() {
 		--pidfile="${gitlab_workhorse_pidfile}" \
 		--stdout "${server_log}" --stderr "${server_log}" \
 		--make-pidfile --background \
+		--chdir "${gitlab_root}" \
 		--exec ${server_command} -- ${server_command_args}
 	eend $?
 }
