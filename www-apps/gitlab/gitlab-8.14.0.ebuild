@@ -54,7 +54,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby23 '=' -2.3*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-3.6.1*
+	=dev-vcs/gitlab-shell-4.0.0
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -215,7 +215,6 @@ all_ruby_install() {
 	# remove gems cache
 	rm -Rf vendor/bundle/ruby/*/cache
 
-
 	sed -i \
 		-e "s|@GITLAB_HOME@|${dest}|" \
 		-e "s|@LOG_DIR@|${logs}|" \
@@ -237,12 +236,12 @@ all_ruby_install() {
 	# copy gentoo init in place to ensure gitlab:check rake command works
 	cp -f "${T}/gitlab.init" "${D}${dest}/lib/support/init.d/gitlab"
 	newinitd "${T}/gitlab.init" "${MY_NAME}"
-	
+
 	systemd_dounit "${T}"/${PN}.service "${T}"/${PN}-worker.service
 	systemd_newtmpfilesd "${T}"/${PN}.tmpfile ${PN}.conf || die
 
 	dosbin "${FILESDIR}"/gitlab_rake.sh
-	
+
 	# fix permissions
 	fowners -R ${MY_USER}:${MY_USER} "${HOME_DIR}" "${conf}" "${temp}" "${logs}"
 }
@@ -286,13 +285,13 @@ pkg_postinst() {
 	elog
 	elog
 	elog "Version 8.x has added several new features and integrated CI directly into the package"
-	elog "Pleare review the following if updating from 7.x:"
+	elog "Please review the following if updating from 7.x:"
 	elog "   https://about.gitlab.com/2015/09/22/gitlab-8-0-released/"
 	elog "   http://doc.gitlab.com/ce/update/7.14-to-8.0.html"
 	elog "   https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/update/7.14-to-8.0.md"
 	elog "   https://gitlab.com/gitlab-org/gitlab-workhorse"
 	elog "   http://doc.gitlab.com/ce/migrate_ci_to_ce/README.html"
-	elog "   http://doc.gitlab.com/ce/incoming_email/README.html" 
+	elog "   http://doc.gitlab.com/ce/incoming_email/README.html"
 }
 
 pkg_config() {
@@ -353,7 +352,7 @@ pkg_config() {
 		einfo "Ensuring proper git config values"
 		su -l ${MY_USER} -c "git config --global user.email '${GITLAB_EMAIL_FROM}';"
 	fi
-	
+
 	su -l ${MY_USER} -c "git config --global core.autocrlf input;"
 	su -l ${MY_USER} -c "git config --global gc.auto 0;"
 }
