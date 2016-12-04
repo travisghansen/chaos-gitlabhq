@@ -1,4 +1,4 @@
-#!/sbin/runscript
+#!/sbin/openrc-run
 
 name="GitLab Runner"
 description="GitLab Runner, starts runners in the background"
