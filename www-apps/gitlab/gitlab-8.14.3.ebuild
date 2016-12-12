@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -14,19 +14,17 @@ EAPI="5"
 #
 
 USE_RUBY="ruby21 ruby22 ruby23"
-MY_P="gitlabhq"
 
 inherit eutils ruby-ng systemd
 
 DESCRIPTION="GitLab is a free project and repository management application"
 HOMEPAGE="https://about.gitlab.com"
-SRC_URI="https://github.com/${MY_P}/${MY_P}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+SRC_URI="https://gitlab.com/gitlab-org/gitlab-ce/repository/archive.tar.bz2?ref=v${PV} -> ${P}.tar.bz2"
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
 RESTRICT="mirror"
 IUSE="+mysql postgres +unicorn"
-RUBY_S="${MY_P}-${PV}"
 
 ## Gems dependencies:
 #   charlock_holmes		dev-libs/icu
@@ -54,7 +52,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby23 '=' -2.3*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-4.0.0
+	=dev-vcs/gitlab-shell-4.0.3
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
@@ -87,6 +85,12 @@ MY_USER="git"
 HOME_DIR="/var/lib/gitlab"
 DEST_DIR="${HOME_DIR}/${MY_NAME}"
 CONF_DIR="/etc/${MY_NAME}"
+
+src_unpack() {
+	default
+	mkdir all || die
+	mv ${PN}-* all/${P} || die
+}
 
 all_ruby_prepare() {
 	local dest=${DEST_DIR}
