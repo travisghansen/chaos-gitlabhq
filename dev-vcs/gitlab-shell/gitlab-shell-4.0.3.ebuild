@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -9,8 +9,8 @@ USE_RUBY="ruby21 ruby22 ruby23"
 inherit eutils ruby-ng user
 
 DESCRIPTION="GitLab shell"
-HOMEPAGE="https://github.com/gitlabhq/gitlab-shell"
-SRC_URI="https://github.com/gitlabhq/${PN}/archive/v${PV}.tar.gz -> ${P}.tar.gz"
+HOMEPAGE="https://gitlab.com/gitlab-org/gitlab-shell"
+SRC_URI="https://gitlab.com/gitlab-org/${PN}/repository/archive.tar.bz2?ref=v${PV} -> ${P}.tar.bz2"
 SLOT="0"
 LICENSE="MIT"
 KEYWORDS="~amd64 ~x86"
@@ -28,6 +28,12 @@ RDEPEND="${DEPEND}"
 MY_USER="git"
 HOME_DIR="/var/lib/gitlab"
 DEST_DIR="${HOME_DIR}/${PN}"
+
+src_unpack() {
+	default
+	mkdir all || die
+	mv ${PN}-* all/${P} || die
+}
 
 pkg_setup() {
 	enewgroup ${MY_USER}
