@@ -42,7 +42,7 @@ GEMS_DEPEND="
 	dev-util/ragel
 	dev-libs/yajl
 	net-libs/nodejs
-	postgres? ( dev-db/postgresql )
+	postgres? ( dev-db/postgresql:* )
 	mysql? ( virtual/mysql )"
 
 DEPEND="${GEMS_DEPEND}
@@ -52,7 +52,7 @@ DEPEND="${GEMS_DEPEND}
 		$(ruby_implementation_depend ruby23 '=' -2.3*)[readline,ssl]
 	)
 	>=dev-vcs/git-2.7.3-r1
-	=dev-vcs/gitlab-shell-4.0.3
+	=dev-vcs/gitlab-shell-4.1.1
 	dev-libs/libxml2
 	dev-libs/libxslt
 	net-misc/curl
