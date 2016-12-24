@@ -1,4 +1,4 @@
-# Copyright 1999-2015 Gentoo Foundation
+# Copyright 1999-2016 Gentoo Foundation
 # Distributed under the terms of the GNU General Public License v2
 # $Header: $
 
@@ -6,8 +6,8 @@ EAPI="5"
 
 inherit golang-base
 
-DESCRIPTION="Management Controller for UniFi APs"
-HOMEPAGE="http://wiki.ubnt.com/UniFi_FAQ"
+DESCRIPTION="Reverse proxy for GitLab"
+HOMEPAGE="https://gitlab.com/gitlab-org/gitlab-workhorse"
 SRC_URI="https://gitlab.com/gitlab-org/${PN}/repository/archive.tar.bz2?ref=v${PV} -> ${P}.tar.bz2"
 SLOT="0"
 LICENSE="MIT"
@@ -19,7 +19,7 @@ DEPEND="!dev-vcs/gitlab-git-http-server
 # TODO: depend on gitlab-shell to ensure git user?
 
 src_unpack() {
-	unpack "${A}"
+	unpack ${A}
 	S="${WORKDIR}/$(basename "${WORKDIR}/${PN}-v${PV}"*)"
 }
 
@@ -38,7 +38,7 @@ src_install() {
 	newins "${FILESDIR}/${PN}.logrotate" ${PN}
 
 	dodir /usr/bin
-	emake install PREFIX=${D}/usr
+	emake install PREFIX="${D}/usr"
 	newinitd "${FILESDIR}/${PN}.init" "${PN}"
 	newconfd "${FILESDIR}/${PN}.conf" "${PN}"
 }

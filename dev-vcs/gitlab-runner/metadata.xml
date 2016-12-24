@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>travisghansen@yahoo.com</email>
+    <name>Travis Glenn Hansen</name>
+  </maintainer>
+  <upstream>
+    <changelog>https://gitlab.com/gitlab-org/gitlab-ci-runner/blob/master/CHANGELOG</changelog>
+    <bugs-to>https://gitlab.com/gitlab-org/gitlab-ci-runner/issues</bugs-to>
+    <remote-id type="gitlab">gitlab-org/gitlab-ci-runner</remote-id>
+  </upstream>
+</pkgmetadata>

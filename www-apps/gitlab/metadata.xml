@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE pkgmetadata SYSTEM "http://www.gentoo.org/dtd/metadata.dtd">
+<pkgmetadata>
+  <maintainer type="person">
+    <email>travisghansen@yahoo.com</email>
+    <name>Travis Glenn Hansen</name>
+  </maintainer>
+  <use>
+    <flag name="mysql">Add mySQL Database support</flag>
+    <flag name="postgres">Add support for the postgresql database</flag>
+    <flag name="unicorn">Add unicorn support</flag>
+  </use>
+  <upstream>
+    <changelog>https://gitlab.com/gitlab-org/gitlab-ce/blob/master/CHANGELOG.md</changelog>
+    <bugs-to>https://gitlab.com/gitlab-org/gitlab-ce/issues</bugs-to>
+    <remote-id type="gitlab">gitlab-org/gitlab-ce</remote-id>
+  </upstream>
+</pkgmetadata>
