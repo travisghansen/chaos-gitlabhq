@@ -28,12 +28,12 @@ IUSE="+mysql postgres +unicorn"
 
 ## Gems dependencies:
 #   charlock_holmes		dev-libs/icu
-#	grape, capybara		dev-libs/libxml2, dev-libs/libxslt
-#   json				dev-util/ragel
+#   grape, capybara		dev-libs/libxml2, dev-libs/libxslt
+#   json			dev-util/ragel
 #   yajl-ruby			dev-libs/yajl
-#   execjs				net-libs/nodejs, or any other JS runtime
-#   pg					dev-db/postgresql
-#   mysql				virtual/mysql
+#   execjs			net-libs/nodejs, or any other JS runtime
+#   pg				dev-db/postgresql
+#   mysql			virtual/mysql
 #
 GEMS_DEPEND="
 	dev-libs/icu
